@@ -892,6 +892,70 @@
     .data-table tbody td:nth-child(4) { display: none; }
   }
 
+  /* ── AVISO JURÍDICO ──────────────────────────────────── */
+  .legal-banner {
+    background: #FFF8E1;
+    border-bottom: 2px solid #C68B2A;
+    position: relative;
+    z-index: 200;
+  }
+
+  .legal-banner-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .legal-banner-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  .legal-banner-text {
+    flex: 1;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: #5A4000;
+  }
+
+  .legal-banner-text strong {
+    font-weight: 700;
+    color: #3A2800;
+  }
+
+  .legal-banner-text a {
+    color: #7A5200;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .legal-dismiss {
+    background: none;
+    border: 1px solid rgba(198,139,42,0.5);
+    border-radius: 6px;
+    padding: 0.3rem 0.7rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #7A5200;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: background 0.15s;
+    margin-top: 0.05rem;
+  }
+
+  .legal-dismiss:hover { background: rgba(198,139,42,0.12); }
+
+  @media (max-width: 640px) {
+    .legal-banner-inner { padding: 0.75rem 1rem; flex-wrap: wrap; }
+    .legal-dismiss { width: 100%; text-align: center; }
+  }
+
   /* ── ANIMATIONS ───────────────────────────────────── */
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(16px); }
@@ -932,6 +996,23 @@
 </style>
 </head>
 <body>
+
+<!-- AVISO JURÍDICO -->
+<div class="legal-banner" id="legalBanner" role="note" aria-label="Aviso legal">
+  <div class="legal-banner-inner">
+    <span class="legal-banner-icon">⚠️</span>
+    <p class="legal-banner-text">
+      <strong>Portal não oficial &mdash; fins exclusivamente informativos.</strong>
+      Este site é uma iniciativa independente de cidadão e <strong>não possui qualquer vínculo com a Prefeitura Municipal de Divinolândia, com o Estado de São Paulo ou com qualquer órgão público.</strong>
+      Os dados aqui exibidos são obtidos por consulta automatizada ao
+      <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" rel="noopener noreferrer">Portal Oficial de Transparência</a>
+      (sistema PRONIM TB / Cidade360) e reproduzidos sem alteração de conteúdo.
+      <strong>Não nos responsabilizamos pela exatidão, completude, atualidade ou interpretação dos dados</strong> &mdash; para informações oficiais e vinculantes, consulte diretamente o portal da prefeitura.
+      O uso deste site implica ciência e concordância com este aviso.
+    </p>
+    <button class="legal-dismiss" onclick="document.getElementById('legalBanner').style.display='none'" aria-label="Fechar aviso">Entendi</button>
+  </div>
+</div>
 
 <!-- HEADER -->
 <header class="site-header">
@@ -1106,8 +1187,11 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-left">
-      Dados extraídos via web scraping do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank">Portal Oficial de Transparência</a> · Sistema PRONIM TB · Cidade360<br>
-      Portal não oficial — para fins informativos e educacionais.
+      Dados extraídos do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" rel="noopener noreferrer">Portal Oficial de Transparência</a> · Sistema PRONIM TB · Cidade360<br>
+      <strong style="color:rgba(255,255,255,0.7)">Site não oficial &mdash; sem vínculo com a Prefeitura de Divinolândia.</strong>
+      Produzido por cidadão para fins informativos, educacionais e de controle social, conforme a
+      <a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm" target="_blank" rel="noopener noreferrer">Lei de Acesso à Informação (Lei nº 12.527/2011)</a>.<br>
+      Os dados são de domínio público e reproduzidos sem alteração. Não nos responsabilizamos por erros, omissões ou desatualizações oriundos da fonte oficial.
     </div>
     <div class="footer-right">
       Atualizado em 21/05/2026<br>
