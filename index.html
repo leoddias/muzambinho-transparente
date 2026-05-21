@@ -892,6 +892,64 @@
     .data-table tbody td:nth-child(4) { display: none; }
   }
 
+  /* ── SALARY INFO BOX ─────────────────────────────────── */
+  .salary-info-box {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-left: 4px solid #3B82F6;
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+    color: #1E3A5F;
+  }
+
+  .sib-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    margin-bottom: 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  .sib-icon { font-size: 1rem; }
+
+  .sib-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .sib-list li {
+    padding-left: 0.85rem;
+    border-left: 2px solid #BFDBFE;
+    line-height: 1.5;
+  }
+
+  .sib-list a {
+    color: #1D4ED8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sib-badge {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+  }
+
+  .sib-badge-rescisao { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+
+  .tag-rescisao { background: #FEF3C7; color: #92400E; }
+
   /* ── AVISO JURÍDICO ──────────────────────────────────── */
   .legal-banner {
     background: #FFF8E1;
@@ -1156,7 +1214,19 @@
     </div>
 
     <div class="demo-notice">
-      ✅ <strong>Dados oficiais</strong> — Extraídos diretamente do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" style="color:#7A5000;font-weight:600;">Portal de Transparência</a> (Gestão de Pessoas › Salários por Colaborador).
+      ✅ <strong>Dados oficiais</strong> — Extraídos diretamente do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" style="color:#7A5000;font-weight:600;">Portal de Transparência</a> (Gestão de Pessoas › Salários por Colaborador). Última atualização: 21/05/2026.
+    </div>
+
+    <div class="salary-info-box">
+      <div class="sib-header">
+        <span class="sib-icon">ℹ️</span>
+        <strong>Notas sobre os dados de remuneração</strong>
+      </div>
+      <ul class="sib-list">
+        <li><span class="sib-badge sib-badge-rescisao">Rescisão</span> Os servidores marcados com esse badge receberam <strong>verbas rescisórias</strong> (férias vencidas, 13º proporcional etc.), não salário mensal regular. O valor não representa a remuneração ordinária do cargo.</li>
+        <li>Os valores exibidos são do <strong>período acumulado (janeiro a maio de 2026)</strong> conforme apresentado pelo portal, podendo incluir gratificações e adicionais variáveis.</li>
+        <li>Para validação ou contestação de qualquer dado, acesse diretamente o <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" rel="noopener noreferrer">Portal de Transparência Oficial</a>.</li>
+      </ul>
     </div>
 
     <div class="salary-table-wrap">
@@ -1210,16 +1280,18 @@ const SALARY_DATA = [
     "area": "saude2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 22655.84,
-    "deducoes": 1497.73
+    "deducoes": 1497.73,
+    "tipo": "Rescisão"
   },
   {
     "rank": 2,
     "nome": "Cleberson Corrêa",
-    "cargo": "Secretário  Administrativo",
+    "cargo": "Secretário Administrativo",
     "area": "exec",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 18370.44,
-    "deducoes": 10726.03
+    "deducoes": 10726.03,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 3,
@@ -1228,7 +1300,8 @@ const SALARY_DATA = [
     "area": "exec",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 18051.25,
-    "deducoes": 4771.71
+    "deducoes": 4771.71,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 4,
@@ -1237,7 +1310,8 @@ const SALARY_DATA = [
     "area": "jur",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 17881.74,
-    "deducoes": 4804.25
+    "deducoes": 4804.25,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 5,
@@ -1245,8 +1319,9 @@ const SALARY_DATA = [
     "cargo": "Auditor Geral do Município",
     "area": "jur",
     "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 17438.9,
-    "deducoes": 7283.02
+    "bruto": 17438.90,
+    "deducoes": 7283.02,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 6,
@@ -1255,7 +1330,8 @@ const SALARY_DATA = [
     "area": "jur",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 16048.41,
-    "deducoes": 4425.92
+    "deducoes": 4425.92,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 7,
@@ -1264,124 +1340,138 @@ const SALARY_DATA = [
     "area": "saude2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 15188.78,
-    "deducoes": 7727.99
+    "deducoes": 7727.99,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 8,
-    "nome": "Ana Carolina Amadeu Fernandes",
-    "cargo": "Professor  PEB I",
-    "area": "edu2",
-    "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 13627.39,
-    "deducoes": 8050.84
-  },
-  {
-    "rank": 9,
     "nome": "Lucimara Regina de Paula Carvalho",
-    "cargo": "Professor  PEB II",
+    "cargo": "Professor PEB II",
     "area": "edu2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 13185.86,
-    "deducoes": 3910.77
+    "deducoes": 3910.77,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 10,
+    "rank": 9,
     "nome": "Osnir Bento Ferreira",
     "cargo": "Operador de Máquinas",
     "area": "eng",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 13040.04,
-    "deducoes": 2761.23
+    "deducoes": 2761.23,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 11,
+    "rank": 10,
     "nome": "José Luis Zamai",
     "cargo": "Engenheiro Agrônomo",
     "area": "eng",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 12949.75,
-    "deducoes": 3574.8
+    "deducoes": 3574.80,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 12,
+    "rank": 11,
     "nome": "Ivandecir Aparecido Cardoso",
     "cargo": "Gerente M. de Obras e Serviços",
     "area": "eng",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 12708.62,
-    "deducoes": 8295.86
+    "deducoes": 8295.86,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 13,
-    "nome": "Deborah Vasconcelos dos Santos",
-    "cargo": "Professor  PEB I",
-    "area": "edu2",
-    "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 12469.36,
-    "deducoes": 7278.34
-  },
-  {
-    "rank": 14,
+    "rank": 12,
     "nome": "Júlio Cesar Pereira",
     "cargo": "Supervisor de Esportes",
     "area": "adm",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 11767.22,
-    "deducoes": 6029.84
+    "deducoes": 6029.84,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 15,
-    "nome": "Maila Cristina Jorge Corrêa",
-    "cargo": "Professor  PEB II",
-    "area": "edu2",
-    "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 11591.5,
-    "deducoes": 3905.16
-  },
-  {
-    "rank": 16,
+    "rank": 13,
     "nome": "Juliana Maria Mastri Ferreira",
-    "cargo": "Enfermeiro Padrao",
+    "cargo": "Enfermeiro Padrão",
     "area": "saude2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 11551.08,
-    "deducoes": 2991.33
+    "deducoes": 2991.33,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 17,
-    "nome": "Danielle de Almeida Cardoso",
-    "cargo": "Professor  PEB I",
-    "area": "edu2",
-    "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 11523.86,
-    "deducoes": 3405.15
-  },
-  {
-    "rank": 18,
+    "rank": 14,
     "nome": "Carlos Alberto Costa da Silva",
     "cargo": "Motorista I",
     "area": "adm",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 11488.32,
-    "deducoes": 2223.86
+    "deducoes": 2223.86,
+    "tipo": "Folha Mensal"
   },
   {
-    "rank": 19,
+    "rank": 15,
     "nome": "Maristela Darcie Pereira",
     "cargo": "Dentista",
     "area": "saude2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
     "bruto": 11268.59,
-    "deducoes": 2273.23
+    "deducoes": 2273.23,
+    "tipo": "Folha Mensal"
+  },
+  {
+    "rank": 16,
+    "nome": "Nilson Alves de Souza",
+    "cargo": "Serviços Gerais",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 10417.89,
+    "deducoes": 2121.95,
+    "tipo": "Folha Mensal"
+  },
+  {
+    "rank": 17,
+    "nome": "Josemary Marinho de Souza",
+    "cargo": "Professor PEB II",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 10395.56,
+    "deducoes": 4229.24,
+    "tipo": "Folha Mensal"
+  },
+  {
+    "rank": 18,
+    "nome": "Sonia Regina Pinto de Faria",
+    "cargo": "Serviços Gerais",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 10329.03,
+    "deducoes": 119.60,
+    "tipo": "Rescisão"
+  },
+  {
+    "rank": 19,
+    "nome": "Alessandra de Cássia Fonseca Gouvea",
+    "cargo": "Professor PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 9991.66,
+    "deducoes": 4700.39,
+    "tipo": "Folha Mensal"
   },
   {
     "rank": 20,
-    "nome": "Fernanda Rossetto Rovani",
-    "cargo": "Professor  PEB I",
+    "nome": "Daniella Betin Isaac Goulart",
+    "cargo": "Professor PEB I",
     "area": "edu2",
     "secretaria": "Prefeitura Municipal de Divinolândia",
-    "bruto": 10698.88,
-    "deducoes": 4237.9
+    "bruto": 9991.64,
+    "deducoes": 2708.15,
+    "tipo": "Folha Mensal"
   }
 ];
 
@@ -1435,6 +1525,9 @@ function renderSalary(data, query = '') {
 
     const nomeHl = hl(d.nome, query);
     const cargoHl = hl(d.cargo, query);
+    const rescisaoTag = d.tipo === 'Rescisão'
+      ? `<span class="s-cargo-tag tag-rescisao" title="Verbas rescisórias — não representa salário mensal regular">Rescisão</span> `
+      : '';
 
     return `<tr class="fade-row" style="animation-delay:${Math.min(i * 0.025, 0.5)}s">
       <td class="td-rank">${rankHtml}</td>
@@ -1443,7 +1536,7 @@ function renderSalary(data, query = '') {
         <div class="s-mat">Mat. confidencial</div>
       </td>
       <td>
-        <span class="s-cargo-tag ${area.cls}">${area.label}</span>
+        ${rescisaoTag}<span class="s-cargo-tag ${area.cls}">${area.label}</span>
         <div class="s-cargo-name">${cargoHl}</div>
         <div class="salary-bar-track">
           <div class="salary-bar-fill" style="width:${barW}%" data-sw="${barW}"></div>
