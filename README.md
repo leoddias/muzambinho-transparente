@@ -6,13 +6,15 @@ Portal de transparência não oficial para os gastos públicos da **Prefeitura d
 
 Um scraper que coleta dados do [PortalTP oficial](https://muzambinho-mg.portaltp.com.br/) (sistema Fiorilli) e os apresenta num site estático autocontido — sem precisar navegar pelo sistema da prefeitura, sem servidor para rodar.
 
+**O portal embute o dataset completo de cada categoria** — nada é truncado para "top N". Todas as listas têm busca, ordenação e filtros que percorrem o dataset inteiro, com paginação client-side de 60 itens por vez.
+
 Cobertura atual:
 
-- **2.324 empenhos** totalizando R$ 50,5 milhões no ano
-- **384 credores/fornecedores** agregados (top: Folha de Pagamento, R$ 12,3M)
-- **825 servidores** cadastrados (749 ativos) com salário base de referência
+- **2.324 empenhos** totalizando R$ 50,5 milhões no ano (todos navegáveis)
+- **384 credores/fornecedores** agregados (todos rankeados; top: Folha de Pagamento R$ 12,3M)
+- **825 servidores** cadastrados (749 ativos) com filtros por situação, vínculo e lotação
 - **6 diárias** concedidas a servidores em deslocamentos
-- **30 contratos** vigentes (R$ 4,28M) e **5 licitações** em curso
+- **30 contratos** vigentes (R$ 4,28M) e **5 licitações** em curso, com filtros por categoria/modalidade
 
 ## Estrutura
 
@@ -38,8 +40,8 @@ Cobertura atual:
 │   ├── diarias_completo.csv
 │   ├── licitacoes_completo.csv
 │   ├── contratos_completo.csv
-│   ├── *_top50.csv / *_top20.csv  # Subsets para o portal
-│   └── site/*.json                # JSONs prontos para embutir no HTML
+│   ├── *_top50.csv / *_top20.csv  # Subsets (artefato; o portal usa os _completo)
+│   └── site/*.json                # JSONs completos prontos para embutir no HTML
 └── debug/                         # Screenshots e HTMLs de exploração
 ```
 

@@ -14,6 +14,19 @@ O portal de origem é o **PortalTP da Fiorilli** (versão 3.26.x), um sistema AS
 - **Dados**: CSVs UTF-8-SIG em `data/`, JSONs em `data/site/`, XML brutos em `data/_raw/`.
 - **Apresentação**: `index.html` único, autocontido, com dados embutidos como JSON literal no `<script>`. Gerado por `scraping/atualiza_index.py` a partir dos JSONs.
 
+## Princípio editorial: dataset completo, nunca truncado
+
+O `index.html` embute **todos** os registros de cada categoria (~1.7MB total no caso de Muzambinho). Não há "top 20" ou "top 50" no portal — o leitor pode navegar todos os 2.324 empenhos, 825 servidores, 384 credores etc. Toda lista tem:
+
+- **Busca** livre por múltiplos campos
+- **Ordenação** padrão de maior valor para menor (`valor_desc`)
+- **Filtros** categóricos quando o domínio permitir (chips de situação, função, vínculo, modalidade…) com contadores `(N)`
+- **Paginação client-side** de 60 itens por batch — botão "Mostrar mais X (de Y restantes)" — para não travar o DOM ao renderizar milhares de cards
+
+Implementação em `atualiza_index.py`: funções genéricas `paginatedRender()` + `appendBatch()` reutilizadas por todas as seções. Filtros/sort operam no dataset inteiro, depois pagina o resultado.
+
+Os CSVs `*_top50.csv` e `*_top20.csv` em `data/` ainda são gerados pelos coletores como artefato/cache, mas o portal lê **apenas** os `*_completo.csv` (via `gera_jsons_site.py`).
+
 ## Peculiaridades do PortalTP/Fiorilli (descobertas na prática)
 
 Leia estas regras antes de mexer no scraper. Foram pagas em tentativa-e-erro.

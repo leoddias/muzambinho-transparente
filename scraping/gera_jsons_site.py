@@ -1,14 +1,16 @@
-"""Converte os CSVs em data/*.csv para JSONs prontos para embutir no index.html.
+"""Converte os CSVs completos em JSONs para embutir no index.html.
+
+Principio: gera o DATASET COMPLETO de cada categoria (nao trunca para top N).
+O site exibe tudo com paginação client-side + busca + filtros que percorrem
+o dataset inteiro. O leitor merece ver todo o dado público.
 
 Gera em data/site/:
-  credores_top50.json   - top 50 fornecedores agregados (CREDORES_DATA)
-  empenhos_top50.json   - top 50 empenhos individuais
-  servidores_top20.json - top 20 servidores por salario base
-  diarias.json          - todas as diarias do ano
-  licitacoes.json       - licitacoes + contratos combinados
-  kpis.json             - totais para a stats bar
-
-Estes JSONs sao embutidos como literais JS no index.html.
+  credores.json      - todos os ~384 fornecedores agregados
+  empenhos.json      - todos os ~2300 empenhos individuais
+  servidores.json    - todos os ~825 servidores
+  diarias.json       - todas as diárias do ano
+  licitacoes.json    - licitacoes + contratos completos
+  kpis.json          - totais para a stats bar
 """
 from __future__ import annotations
 import csv
@@ -40,55 +42,54 @@ def to_int(s: str) -> int:
         return 0
 
 
-def gera_credores() -> tuple[list[dict], float]:
-    rows = ler_csv(DATA / "credores_top50.csv")
-    out = []
-    for r in rows:
-        out.append({
-            "rank": to_int(r["Rank"]),
-            "favorecido": r["Favorecido"],
-            "cnpj": r["CPF/CNPJ"],
-            "empenhos": to_int(r["Empenhos"]),
-            "anulacoes": to_int(r["Anulacoes"]),
-            "valor": r["Valor Liquido"],
-            "valor_num": to_float(r["_valor"]),
-            "valor_bruto": r["Valor Bruto"],
-            "valor_bruto_num": to_float(r["_valor_bruto"]),
-        })
-    max_val = max((c["valor_num"] for c in out), default=1.0)
-    return out, max_val
+def gera_credores() -> list[dict]:
+    """TODOS os credores (nao só top 50)."""
+    rows = ler_csv(DATA / "credores_completo.csv")
+    return [{
+        "rank": to_int(r["Rank"]),
+        "favorecido": r["Favorecido"],
+        "cnpj": r["CPF/CNPJ"],
+        "empenhos": to_int(r["Empenhos"]),
+        "anulacoes": to_int(r["Anulacoes"]),
+        "valor": r["Valor Liquido"],
+        "valor_num": to_float(r["_valor"]),
+        "valor_bruto": r["Valor Bruto"],
+        "valor_bruto_num": to_float(r["_valor_bruto"]),
+    } for r in rows]
 
 
-def gera_empenhos() -> tuple[list[dict], float]:
-    rows = ler_csv(DATA / "empenhos_top50.csv")
+def gera_empenhos() -> list[dict]:
+    """TODOS os empenhos do ano (positivos + anulações)."""
+    rows = ler_csv(DATA / "empenhos_completo.csv")
     out = []
     for r in rows:
+        v = to_float(r["_valor"])
         out.append({
-            "rank": to_int(r["Rank"]),
             "data": r["Data"],
             "empenho": r["Empenho"],
             "processo": r["Processo"],
             "favorecido": r["Favorecido"],
             "cnpj": r["CPF/CNPJ"],
             "valor": r["Valor"],
-            "valor_num": to_float(r["_valor"]),
+            "valor_num": v,
             "historico": r["Historico"],
             "funcao": r["Funcao"],
             "subfuncao": r["Subfuncao"],
             "categoria": r["Grupo Natureza"],
             "elemento": r["Elemento Despesa"],
             "fonte": r["Fonte Recurso"],
+            "tipo": r["Tipo"],
         })
-    max_val = max((e["valor_num"] for e in out), default=1.0)
-    return out, max_val
+    return out
 
 
 def gera_servidores() -> list[dict]:
-    rows = ler_csv(DATA / "servidores_top20.csv")
+    """TODOS os servidores cadastrados (ativos + licenças + comissionados)."""
+    rows = ler_csv(DATA / "servidores_completo.csv")
     return [{
-        "rank": to_int(r["Rank"]),
-        "nome": r["Nome"],
         "matricula": r["Matricula"],
+        "nome": r["Nome"],
+        "cpf": r["CPF"],
         "cargo": r["Cargo"],
         "lotacao": r["Lotacao"],
         "vinculo": r["Vinculo"],
@@ -104,11 +105,14 @@ def gera_diarias() -> list[dict]:
     rows = ler_csv(DATA / "diarias_completo.csv")
     return [{
         "data": r["Data"],
+        "processo": r.get("Processo", ""),
         "beneficiario": r["Beneficiario"],
         "matricula": r["Matricula"],
         "cpf": r["CPF"],
         "cargo": r["Cargo"],
         "motivo": r["Motivo"],
+        "base_legal": r.get("Base Legal", ""),
+        "fonte_recurso": r.get("Fonte Recurso", ""),
         "valor": r["Valor"],
         "valor_num": to_float(r["_valor"]),
     } for r in rows]
@@ -146,13 +150,11 @@ def gera_licitacoes() -> dict:
 
 
 def gera_kpis() -> dict:
-    # Totais a partir dos completos (nao truncados)
     empenhos_all = ler_csv(DATA / "empenhos_completo.csv")
     total_empenhado = sum(to_float(r["_valor"]) for r in empenhos_all if to_float(r["_valor"]) > 0)
+    total_anulacoes = sum(-to_float(r["_valor"]) for r in empenhos_all if to_float(r["_valor"]) < 0)
 
     credores_all = ler_csv(DATA / "credores_completo.csv")
-    total_credores = len(credores_all)
-
     servidores_all = ler_csv(DATA / "servidores_completo.csv")
     folha_base = sum(to_float(r["_salario_base"]) for r in servidores_all)
     ativos = sum(1 for r in servidores_all if r["Situacao"] == "Ativo")
@@ -164,10 +166,16 @@ def gera_kpis() -> dict:
     total_contratos = sum(to_float(r["_valor"]) for r in contratos_all)
     licitacoes_all = ler_csv(DATA / "licitacoes_completo.csv")
 
+    max_credor = max((to_float(r["_valor"]) for r in credores_all), default=1.0)
+    # Max empenho positivo (anulações ignoradas para escala da barra)
+    max_empenho = max((to_float(r["_valor"]) for r in empenhos_all if to_float(r["_valor"]) > 0), default=1.0)
+    max_salario = max((to_float(r["_salario_base"]) for r in servidores_all), default=1.0)
+
     return {
         "total_empenhado": total_empenhado,
+        "total_anulacoes": total_anulacoes,
         "total_empenhos": len(empenhos_all),
-        "total_credores": total_credores,
+        "total_credores": len(credores_all),
         "folha_base_mensal": folha_base,
         "total_servidores": len(servidores_all),
         "servidores_ativos": ativos,
@@ -176,14 +184,17 @@ def gera_kpis() -> dict:
         "total_contratos": total_contratos,
         "qtd_contratos": len(contratos_all),
         "qtd_licitacoes": len(licitacoes_all),
+        "max_credor": max_credor,
+        "max_empenho": max_empenho,
+        "max_salario": max_salario,
     }
 
 
 def main() -> None:
     SITE.mkdir(parents=True, exist_ok=True)
 
-    credores, max_credor = gera_credores()
-    empenhos, max_empenho = gera_empenhos()
+    credores = gera_credores()
+    empenhos = gera_empenhos()
     servidores = gera_servidores()
     diarias = gera_diarias()
     licitacoes = gera_licitacoes()
@@ -193,21 +204,23 @@ def main() -> None:
         path = SITE / f"{name}.json"
         with path.open("w", encoding="utf-8") as f:
             json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
-        print(f"  {path.name}: {path.stat().st_size:>7d} bytes")
+        size_kb = path.stat().st_size / 1024
+        n = len(obj) if isinstance(obj, list) else "—"
+        print(f"  {path.name:<22} {size_kb:>7.1f} KB  ({n} itens)")
 
-    save("credores_top50", credores)
-    save("empenhos_top50", empenhos)
-    save("servidores_top20", servidores)
+    save("credores", credores)
+    save("empenhos", empenhos)
+    save("servidores", servidores)
     save("diarias", diarias)
     save("licitacoes", licitacoes)
-    save("kpis", {**kpis, "max_credor": max_credor, "max_empenho": max_empenho})
+    save("kpis", kpis)
 
     print(f"\n  KPIs:")
-    print(f"    Empenhado total: R$ {kpis['total_empenhado']:,.2f}")
-    print(f"    Credores: {kpis['total_credores']}")
-    print(f"    Folha (base, mensal): R$ {kpis['folha_base_mensal']:,.2f}")
-    print(f"    Servidores ativos: {kpis['servidores_ativos']}/{kpis['total_servidores']}")
-    print(f"    Contratos vigentes: {kpis['qtd_contratos']} (R$ {kpis['total_contratos']:,.2f})")
+    print(f"    Empenhado: R$ {kpis['total_empenhado']:,.2f}  ({kpis['total_empenhos']} empenhos, {kpis['total_credores']} credores)")
+    print(f"    Anulações: R$ {kpis['total_anulacoes']:,.2f}")
+    print(f"    Folha base mensal: R$ {kpis['folha_base_mensal']:,.2f}  ({kpis['servidores_ativos']}/{kpis['total_servidores']} ativos)")
+    print(f"    Diárias: R$ {kpis['total_diarias']:,.2f}  ({kpis['qtd_diarias']} registros)")
+    print(f"    Contratos: R$ {kpis['total_contratos']:,.2f}  ({kpis['qtd_contratos']} vigentes, {kpis['qtd_licitacoes']} licitações)")
 
 
 if __name__ == "__main__":
