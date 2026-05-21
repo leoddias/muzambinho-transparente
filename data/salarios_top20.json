@@ -1,0 +1,182 @@
+[
+  {
+    "rank": 1,
+    "nome": "Evandro Antonio de Almeida",
+    "cargo": "Dentista",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 22655.84,
+    "deducoes": 1497.73
+  },
+  {
+    "rank": 2,
+    "nome": "Cleberson Corrêa",
+    "cargo": "Secretário  Administrativo",
+    "area": "exec",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 18370.44,
+    "deducoes": 10726.03
+  },
+  {
+    "rank": 3,
+    "nome": "Antonio de Padua Aquisti",
+    "cargo": "Prefeito",
+    "area": "exec",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 18051.25,
+    "deducoes": 4771.71
+  },
+  {
+    "rank": 4,
+    "nome": "José Henrique Fornari",
+    "cargo": "Procurador Jurídico",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 17881.74,
+    "deducoes": 4804.25
+  },
+  {
+    "rank": 5,
+    "nome": "Ana Carolina Moreira de Oliveira",
+    "cargo": "Auditor Geral do Município",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 17438.9,
+    "deducoes": 7283.02
+  },
+  {
+    "rank": 6,
+    "nome": "Maria Carolina Medeiros Brandi",
+    "cargo": "Procurador Jurídico",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 16048.41,
+    "deducoes": 4425.92
+  },
+  {
+    "rank": 7,
+    "nome": "Elaine Regina Mori",
+    "cargo": "Médico I",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 15188.78,
+    "deducoes": 7727.99
+  },
+  {
+    "rank": 8,
+    "nome": "Ana Carolina Amadeu Fernandes",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13627.39,
+    "deducoes": 8050.84
+  },
+  {
+    "rank": 9,
+    "nome": "Lucimara Regina de Paula Carvalho",
+    "cargo": "Professor  PEB II",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13185.86,
+    "deducoes": 3910.77
+  },
+  {
+    "rank": 10,
+    "nome": "Osnir Bento Ferreira",
+    "cargo": "Operador de Máquinas",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13040.04,
+    "deducoes": 2761.23
+  },
+  {
+    "rank": 11,
+    "nome": "José Luis Zamai",
+    "cargo": "Engenheiro Agrônomo",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12949.75,
+    "deducoes": 3574.8
+  },
+  {
+    "rank": 12,
+    "nome": "Ivandecir Aparecido Cardoso",
+    "cargo": "Gerente M. de Obras e Serviços",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12708.62,
+    "deducoes": 8295.86
+  },
+  {
+    "rank": 13,
+    "nome": "Deborah Vasconcelos dos Santos",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12469.36,
+    "deducoes": 7278.34
+  },
+  {
+    "rank": 14,
+    "nome": "Júlio Cesar Pereira",
+    "cargo": "Supervisor de Esportes",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11767.22,
+    "deducoes": 6029.84
+  },
+  {
+    "rank": 15,
+    "nome": "Maila Cristina Jorge Corrêa",
+    "cargo": "Professor  PEB II",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11591.5,
+    "deducoes": 3905.16
+  },
+  {
+    "rank": 16,
+    "nome": "Juliana Maria Mastri Ferreira",
+    "cargo": "Enfermeiro Padrao",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11551.08,
+    "deducoes": 2991.33
+  },
+  {
+    "rank": 17,
+    "nome": "Danielle de Almeida Cardoso",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11523.86,
+    "deducoes": 3405.15
+  },
+  {
+    "rank": 18,
+    "nome": "Carlos Alberto Costa da Silva",
+    "cargo": "Motorista I",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11488.32,
+    "deducoes": 2223.86
+  },
+  {
+    "rank": 19,
+    "nome": "Maristela Darcie Pereira",
+    "cargo": "Dentista",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11268.59,
+    "deducoes": 2273.23
+  },
+  {
+    "rank": 20,
+    "nome": "Fernanda Rossetto Rovani",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 10698.88,
+    "deducoes": 4237.9
+  }
+]

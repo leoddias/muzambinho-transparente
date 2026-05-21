@@ -479,6 +479,180 @@
   .tag-farm  { background: #E0F2F1; color: #00695C; }
   .tag-outros { background: var(--gray-1); color: var(--gray-4); }
 
+  /* Cargo tags */
+  .tag-exec  { background: #E8F4FF; color: #1565C0; }
+  .tag-adm   { background: #F3E8FF; color: #6A1B9A; }
+  .tag-saude2{ background: #E8FFF0; color: #1B5E20; }
+  .tag-edu2  { background: #FFF8E1; color: #E65100; }
+  .tag-eng   { background: #FFF3E0; color: #BF360C; }
+  .tag-jur   { background: #FCE4EC; color: #880E4F; }
+
+  /* ── SALARY TABLE ─────────────────────────────────── */
+  .salary-section {
+    margin-top: 3.5rem;
+  }
+
+  .salary-table-wrap {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--gray-2);
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .salary-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .salary-table thead tr {
+    background: #1A1A2E;
+    color: var(--white);
+  }
+
+  .salary-table thead th {
+    padding: 0.85rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    color: rgba(255,255,255,0.75);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+
+  .salary-table thead th:hover { color: rgba(255,255,255,1); }
+  .salary-table thead th.sorted-sal { color: #FFD700; }
+
+  .salary-table thead th.th-s-rank  { width: 52px; text-align: center; }
+  .salary-table thead th.th-s-name  { width: 28%; }
+  .salary-table thead th.th-s-cargo { width: 22%; }
+  .salary-table thead th.th-s-sec   { width: 18%; }
+  .salary-table thead th.th-s-bruto { width: 13%; text-align: right; }
+  .salary-table thead th.th-s-dedu  { width: 10%; text-align: right; }
+  .salary-table thead th.th-s-liq   { width: 13%; text-align: right; }
+
+  .salary-table tbody tr {
+    border-bottom: 1px solid var(--gray-1);
+    transition: background 0.15s;
+  }
+
+  .salary-table tbody tr:last-child { border-bottom: none; }
+  .salary-table tbody tr:hover { background: #F0F0FA; }
+
+  .salary-table tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+
+  .s-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--ink);
+  }
+
+  .s-mat {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gray-3);
+    margin-top: 0.15rem;
+    letter-spacing: 0.03em;
+  }
+
+  .s-cargo-tag {
+    display: inline-block;
+    padding: 0.12rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.63rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+
+  .s-cargo-name {
+    font-size: 0.82rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .s-secretaria {
+    font-size: 0.78rem;
+    color: var(--gray-4);
+    line-height: 1.35;
+  }
+
+  .val-bruto {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1A1A2E;
+    white-space: nowrap;
+  }
+
+  .val-dedu {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--red-soft);
+    white-space: nowrap;
+  }
+
+  .val-liq {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--leaf);
+    white-space: nowrap;
+  }
+
+  .salary-bar-track {
+    height: 4px;
+    background: var(--gray-1);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-top: 0.35rem;
+  }
+
+  .salary-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #4B0082, #7B2FBE);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .demo-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #E8FFF0;
+    border: 1px solid rgba(26,107,60,0.3);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-size: 0.78rem;
+    color: #1B5E20;
+    margin-bottom: 1rem;
+  }
+
+  .demo-notice strong { font-weight: 600; }
+
+  /* Salary search */
+  .salary-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   /* CNPJ */
   .td-cnpj {
     font-family: 'DM Mono', monospace;
@@ -879,6 +1053,53 @@
     </div>
   </div>
 
+  <!-- SALARY SECTION -->
+  <section class="salary-section fade-in fade-in-4">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Remuneração de servidores</div>
+        <h2 class="section-title">Top 20 Maiores Salários</h2>
+      </div>
+      <div class="salary-controls">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="salarySearch" placeholder="Buscar servidor ou cargo…" autocomplete="off">
+        </div>
+        <select class="sort-select" id="salarySortSelect">
+          <option value="bruto">Ordenar: Bruto ↓</option>
+          <option value="liq">Ordenar: Líquido ↓</option>
+          <option value="nome">Ordenar: Nome A→Z</option>
+        </select>
+        <span class="result-count" id="salaryCount"><strong>20</strong> servidores</span>
+      </div>
+    </div>
+
+    <div class="demo-notice">
+      ✅ <strong>Dados oficiais</strong> — Extraídos diretamente do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" style="color:#7A5000;font-weight:600;">Portal de Transparência</a> (Gestão de Pessoas › Salários por Colaborador).
+    </div>
+
+    <div class="salary-table-wrap">
+      <table class="salary-table" id="salaryTable">
+        <thead>
+          <tr>
+            <th class="th-s-rank">#</th>
+            <th class="th-s-name" data-ssort="nome">Servidor <span class="sort-icon">↕</span></th>
+            <th class="th-s-cargo">Cargo / Função</th>
+            <th class="th-s-sec">Secretaria</th>
+            <th class="th-s-bruto sorted-sal" data-ssort="bruto">Bruto <span class="sort-icon">↓</span></th>
+            <th class="th-s-dedu">Deduções</th>
+            <th class="th-s-liq" data-ssort="liq">Líquido <span class="sort-icon">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="salaryBody"></tbody>
+      </table>
+      <div class="empty-state" id="salaryEmpty">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-text">Nenhum servidor encontrado.</div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- FOOTER -->
@@ -896,6 +1117,288 @@
 </footer>
 
 <script>
+// ── SALARY DATA (extraído do portal oficial — atualizado automaticamente) ──
+const SALARY_DATA = [
+  {
+    "rank": 1,
+    "nome": "Evandro Antonio de Almeida",
+    "cargo": "Dentista",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 22655.84,
+    "deducoes": 1497.73
+  },
+  {
+    "rank": 2,
+    "nome": "Cleberson Corrêa",
+    "cargo": "Secretário  Administrativo",
+    "area": "exec",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 18370.44,
+    "deducoes": 10726.03
+  },
+  {
+    "rank": 3,
+    "nome": "Antonio de Padua Aquisti",
+    "cargo": "Prefeito",
+    "area": "exec",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 18051.25,
+    "deducoes": 4771.71
+  },
+  {
+    "rank": 4,
+    "nome": "José Henrique Fornari",
+    "cargo": "Procurador Jurídico",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 17881.74,
+    "deducoes": 4804.25
+  },
+  {
+    "rank": 5,
+    "nome": "Ana Carolina Moreira de Oliveira",
+    "cargo": "Auditor Geral do Município",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 17438.9,
+    "deducoes": 7283.02
+  },
+  {
+    "rank": 6,
+    "nome": "Maria Carolina Medeiros Brandi",
+    "cargo": "Procurador Jurídico",
+    "area": "jur",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 16048.41,
+    "deducoes": 4425.92
+  },
+  {
+    "rank": 7,
+    "nome": "Elaine Regina Mori",
+    "cargo": "Médico I",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 15188.78,
+    "deducoes": 7727.99
+  },
+  {
+    "rank": 8,
+    "nome": "Ana Carolina Amadeu Fernandes",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13627.39,
+    "deducoes": 8050.84
+  },
+  {
+    "rank": 9,
+    "nome": "Lucimara Regina de Paula Carvalho",
+    "cargo": "Professor  PEB II",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13185.86,
+    "deducoes": 3910.77
+  },
+  {
+    "rank": 10,
+    "nome": "Osnir Bento Ferreira",
+    "cargo": "Operador de Máquinas",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 13040.04,
+    "deducoes": 2761.23
+  },
+  {
+    "rank": 11,
+    "nome": "José Luis Zamai",
+    "cargo": "Engenheiro Agrônomo",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12949.75,
+    "deducoes": 3574.8
+  },
+  {
+    "rank": 12,
+    "nome": "Ivandecir Aparecido Cardoso",
+    "cargo": "Gerente M. de Obras e Serviços",
+    "area": "eng",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12708.62,
+    "deducoes": 8295.86
+  },
+  {
+    "rank": 13,
+    "nome": "Deborah Vasconcelos dos Santos",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 12469.36,
+    "deducoes": 7278.34
+  },
+  {
+    "rank": 14,
+    "nome": "Júlio Cesar Pereira",
+    "cargo": "Supervisor de Esportes",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11767.22,
+    "deducoes": 6029.84
+  },
+  {
+    "rank": 15,
+    "nome": "Maila Cristina Jorge Corrêa",
+    "cargo": "Professor  PEB II",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11591.5,
+    "deducoes": 3905.16
+  },
+  {
+    "rank": 16,
+    "nome": "Juliana Maria Mastri Ferreira",
+    "cargo": "Enfermeiro Padrao",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11551.08,
+    "deducoes": 2991.33
+  },
+  {
+    "rank": 17,
+    "nome": "Danielle de Almeida Cardoso",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11523.86,
+    "deducoes": 3405.15
+  },
+  {
+    "rank": 18,
+    "nome": "Carlos Alberto Costa da Silva",
+    "cargo": "Motorista I",
+    "area": "adm",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11488.32,
+    "deducoes": 2223.86
+  },
+  {
+    "rank": 19,
+    "nome": "Maristela Darcie Pereira",
+    "cargo": "Dentista",
+    "area": "saude2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 11268.59,
+    "deducoes": 2273.23
+  },
+  {
+    "rank": 20,
+    "nome": "Fernanda Rossetto Rovani",
+    "cargo": "Professor  PEB I",
+    "area": "edu2",
+    "secretaria": "Prefeitura Municipal de Divinolândia",
+    "bruto": 10698.88,
+    "deducoes": 4237.9
+  }
+];
+
+const SALARY_MAX = 22655.84;
+
+const AREA_MAP = {
+  exec:   { label: 'Executivo',  cls: 'tag-exec' },
+  adm:    { label: 'Administração', cls: 'tag-adm' },
+  saude2: { label: 'Saúde',     cls: 'tag-saude2' },
+  edu2:   { label: 'Educação',  cls: 'tag-edu2' },
+  eng:    { label: 'Engenharia',cls: 'tag-eng' },
+  jur:    { label: 'Jurídico',  cls: 'tag-jur' },
+};
+
+function fmtSal(n) {
+  return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function renderSalary(data, query = '') {
+  const tbody = document.getElementById('salaryBody');
+  const empty = document.getElementById('salaryEmpty');
+  const counter = document.getElementById('salaryCount');
+
+  function hl(text, q) {
+    if (!q) return text;
+    const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+  }
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.add('visible');
+    counter.innerHTML = '<strong>0</strong> servidores';
+    return;
+  }
+
+  empty.classList.remove('visible');
+  counter.innerHTML = `<strong>${data.length}</strong> servidor${data.length !== 1 ? 'es' : ''}`;
+
+  tbody.innerHTML = data.map((d, i) => {
+    const liq = d.bruto - d.deducoes;
+    const barW = (d.bruto / SALARY_MAX * 100).toFixed(1);
+    const area = AREA_MAP[d.area] || { label: 'Outros', cls: 'tag-outros' };
+
+    let rankHtml;
+    if (i < 3) {
+      rankHtml = `<span class="rank-top rank-${i+1}">${i+1}</span>`;
+    } else {
+      rankHtml = `${i+1}`;
+    }
+
+    const nomeHl = hl(d.nome, query);
+    const cargoHl = hl(d.cargo, query);
+
+    return `<tr class="fade-row" style="animation-delay:${Math.min(i * 0.025, 0.5)}s">
+      <td class="td-rank">${rankHtml}</td>
+      <td class="td-name">
+        <div class="s-name">${nomeHl}</div>
+        <div class="s-mat">Mat. confidencial</div>
+      </td>
+      <td>
+        <span class="s-cargo-tag ${area.cls}">${area.label}</span>
+        <div class="s-cargo-name">${cargoHl}</div>
+        <div class="salary-bar-track">
+          <div class="salary-bar-fill" style="width:${barW}%" data-sw="${barW}"></div>
+        </div>
+      </td>
+      <td class="s-secretaria">${d.secretaria}</td>
+      <td class="val-bruto">${fmtSal(d.bruto)}</td>
+      <td class="val-dedu">-${fmtSal(d.deducoes)}</td>
+      <td class="val-liq">${fmtSal(liq)}</td>
+    </tr>`;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.salary-bar-fill').forEach(el => {
+        el.style.transform = `scaleX(${parseFloat(el.dataset.sw) / 100})`;
+      });
+    });
+  });
+}
+
+function sortSalary(data, key) {
+  return [...data].sort((a, b) => {
+    if (key === 'nome')  return a.nome.localeCompare(b.nome, 'pt-BR');
+    if (key === 'bruto') return b.bruto - a.bruto;
+    if (key === 'liq')   return (b.bruto - b.deducoes) - (a.bruto - a.deducoes);
+    return 0;
+  });
+}
+
+function filterSalary(data, q) {
+  if (!q) return data;
+  const lq = q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  return data.filter(d => {
+    const n = (d.nome + ' ' + d.cargo + ' ' + d.secretaria).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    return n.includes(lq);
+  });
+}
+
 const DATA = [{"rank":1,"nome":"FOLHA DE PAGAMENTO","cnpj":"46.435.921/0001-88","empenhado":"R$ 9.439.231,14","liquidado":"R$ 8.827.719,19","pago":"R$ 8.637.190,07","anulado":"R$ 227.833,64","valor_num":9439231.14},{"rank":2,"nome":"INSTITUTO PREVID. DO MUNIC. DE DIVINOLÂNDIA","cnpj":"05.119.717/0001-70","empenhado":"R$ 7.235.391,22","liquidado":"R$ 2.157.288,51","pago":"R$ 2.764.727,10","anulado":"R$ 1.110.409,05","valor_num":7235391.22},{"rank":3,"nome":"LINK CARD ADMINISTRADORA DE BENEFICIOS EIRELI","cnpj":"12.039.966/0001-11","empenhado":"R$ 2.243.651,59","liquidado":"R$ 750.159,89","pago":"R$ 999.642,40","anulado":"R$ 199.144,87","valor_num":2243651.59},{"rank":4,"nome":"CONDERG - Cons. Des. Regional Gov. SJB","cnpj":"52.356.268/0002-45","empenhado":"R$ 1.670.337,46","liquidado":"R$ 1.093.173,00","pago":"R$ 1.009.217,74","anulado":"R$ 0,00","valor_num":1670337.46},{"rank":5,"nome":"VEROCHEQUE REFEIÇÕES LTDA","cnpj":"06.344.497/0001-41","empenhado":"R$ 1.631.521,20","liquidado":"R$ 1.635.515,30","pago":"R$ 1.726.852,25","anulado":"R$ 0,00","valor_num":1631521.2},{"rank":6,"nome":"INSTITUTO NACIONAL DO SEGURO SOCIAL (INSS)","cnpj":"29.979.036/0001-40","empenhado":"R$ 607.550,94","liquidado":"R$ 420.112,23","pago":"R$ 597.173,92","anulado":"R$ 0,00","valor_num":607550.94},{"rank":7,"nome":"TRIBUNAL DE JUSTIÇA DO ESTADO DE SÃO PAULO","cnpj":"51.174.001/0001-93","empenhado":"R$ 509.496,20","liquidado":"R$ 293.277,13","pago":"R$ 242.582,50","anulado":"R$ 0,00","valor_num":509496.2},{"rank":8,"nome":"TRANSER - Centro de Gerenciamento de Resíduos Ltda","cnpj":"17.712.643/0001-60","empenhado":"R$ 439.078,98","liquidado":"R$ 525.685,94","pago":"R$ 615.355,92","anulado":"R$ 0,00","valor_num":439078.98},{"rank":9,"nome":"MINISTÉRIO DA FAZENDA - Receita Federal do Brasil","cnpj":"00.394.460/0058-87","empenhado":"R$ 400.000,00","liquidado":"R$ 262.885,50","pago":"R$ 156.452,07","anulado":"R$ 0,00","valor_num":400000.0},{"rank":10,"nome":"COMERCIAL GERMANICA LIMITADA","cnpj":"02.952.561/0004-69","empenhado":"R$ 386.400,00","liquidado":"R$ 386.400,00","pago":"R$ 193.740,00","anulado":"R$ 0,00","valor_num":386400.0},{"rank":11,"nome":"GOVERNANÇABRASIL S/A Tecnologia e Gestão em Serviços","cnpj":"00.165.960/0001-01","empenhado":"R$ 385.410,00","liquidado":"R$ 409.115,49","pago":"R$ 462.190,98","anulado":"R$ 0,00","valor_num":385410.0},{"rank":12,"nome":"BANCO BRADESCO S/A","cnpj":"00.000.000/0002-96","empenhado":"R$ 379.922,69","liquidado":"R$ 0,00","pago":"R$ 319.666,08","anulado":"R$ 0,00","valor_num":379922.69},{"rank":13,"nome":"PONTUAL FARMACÊUTICA NR 2006 LTDA","cnpj":"07.724.173/0004-44","empenhado":"R$ 330.516,45","liquidado":"R$ 66.103,29","pago":"R$ 44.068,86","anulado":"R$ 0,00","valor_num":330516.45},{"rank":14,"nome":"LAR DE IDOSOS SÃO VICENTE DE PAULO","cnpj":"44.840.411/0001-60","empenhado":"R$ 241.600,00","liquidado":"R$ 228.048,25","pago":"R$ 128.048,25","anulado":"R$ 0,00","valor_num":241600.0},{"rank":15,"nome":"CONFIATTA CONSULTORIA E GESTÃO LTDA EPP","cnpj":"08.496.850/0001-34","empenhado":"R$ 228.000,00","liquidado":"R$ 95.000,00","pago":"R$ 95.000,00","anulado":"R$ 0,00","valor_num":228000.0},{"rank":16,"nome":"CAIQUE TRANSPORTES LTDA","cnpj":"09.293.354/0001-46","empenhado":"R$ 214.933,84","liquidado":"R$ 125.194,72","pago":"R$ 141.497,46","anulado":"R$ 0,00","valor_num":214933.84},{"rank":17,"nome":"VLC SOLUÇÕES EMPRESARIAIS","cnpj":"05.198.313/0001-10","empenhado":"R$ 195.000,00","liquidado":"R$ 75.000,00","pago":"R$ 105.000,00","anulado":"R$ 0,00","valor_num":195000.0},{"rank":18,"nome":"CAIXA ECONÔMICA FEDERAL","cnpj":"00.000.000/0016-19","empenhado":"R$ 171.641,76","liquidado":"R$ 0,00","pago":"R$ 155.232,95","anulado":"R$ 0,00","valor_num":171641.76},{"rank":19,"nome":"LUCIANE DE ALMEIDA FAGUNDES ME","cnpj":"13.059.676/0001-00","empenhado":"R$ 160.390,65","liquidado":"R$ 123.106,94","pago":"R$ 139.557,23","anulado":"R$ 0,00","valor_num":160390.65},{"rank":20,"nome":"FB TELECOMUNICAÇÕES LTDA ME","cnpj":"30.572.475/0001-13","empenhado":"R$ 157.652,87","liquidado":"R$ 97.977,52","pago":"R$ 103.168,17","anulado":"R$ 0,00","valor_num":157652.87},{"rank":21,"nome":"LAR DA CRIANÇA DE DIVINOLÂNDIA","cnpj":"51.311.769/0001-61","empenhado":"R$ 153.600,00","liquidado":"R$ 113.993,17","pago":"R$ 113.993,17","anulado":"R$ 16.800,00","valor_num":153600.0},{"rank":22,"nome":"TRANSPORTE ESCOLAR GRESPAN LTDA ME","cnpj":"08.596.863/0001-85","empenhado":"R$ 150.656,67","liquidado":"R$ 100.269,35","pago":"R$ 111.687,18","anulado":"R$ 0,00","valor_num":150656.67},{"rank":23,"nome":"JAVEP - Veículos, Peças e Serviços LTDA","cnpj":"50.752.211/0007-44","empenhado":"R$ 147.800,00","liquidado":"R$ 147.800,00","pago":"R$ 147.800,00","anulado":"R$ 0,00","valor_num":147800.0},{"rank":24,"nome":"BANCO DO BRASIL S/A","cnpj":"00.000.000/0801-75","empenhado":"R$ 123.248,63","liquidado":"R$ 0,00","pago":"R$ 119.835,49","anulado":"R$ 0,00","valor_num":123248.63},{"rank":25,"nome":"NEW HIGIPEL COMERCIAL LTDA","cnpj":"44.989.569/0001-05","empenhado":"R$ 121.785,95","liquidado":"R$ 121.785,95","pago":"R$ 0,00","anulado":"R$ 0,00","valor_num":121785.95},{"rank":26,"nome":"PRODESP - Cia. Processamento de Dados do Estado de SP","cnpj":"62.577.929/0001-35","empenhado":"R$ 116.932,06","liquidado":"R$ 62.412,57","pago":"R$ 62.412,57","anulado":"R$ 87,52","valor_num":116932.06},{"rank":27,"nome":"SABESP - Cia Saneamento Básico do Estado de SP","cnpj":"43.776.517/0001-80","empenhado":"R$ 115.200,00","liquidado":"R$ 53.594,42","pago":"R$ 53.594,42","anulado":"R$ 0,00","valor_num":115200.0},{"rank":28,"nome":"BANCO DO BRASIL SA","cnpj":"00.000.000/0001-91","empenhado":"R$ 112.427,89","liquidado":"R$ 109.179,56","pago":"R$ 109.121,91","anulado":"R$ 0,00","valor_num":112427.89},{"rank":29,"nome":"J&A COMERCIAL DO BRASIL LTDA","cnpj":"35.156.745/0001-29","empenhado":"R$ 102.602,00","liquidado":"R$ 89.924,00","pago":"R$ 74.821,43","anulado":"R$ 0,00","valor_num":102602.0},{"rank":30,"nome":"JEAN & SÉRGIO TRANSPORTE ESCOLAR LTDA-ME","cnpj":"10.674.594/0001-70","empenhado":"R$ 102.587,42","liquidado":"R$ 75.243,04","pago":"R$ 83.424,50","anulado":"R$ 0,00","valor_num":102587.42},{"rank":31,"nome":"GENTE SEGURADORA S/A","cnpj":"90.180.605/0001-02","empenhado":"R$ 92.688,75","liquidado":"R$ 77.740,53","pago":"R$ 78.025,71","anulado":"R$ 0,00","valor_num":92688.75},{"rank":32,"nome":"CPFL ENERGIA","cnpj":"53.859.112/0001-69","empenhado":"R$ 92.040,00","liquidado":"R$ 57.693,89","pago":"R$ 57.693,89","anulado":"R$ 0,00","valor_num":92040.0},{"rank":33,"nome":"SÃO PAULO - SECRETARIA DE SEGURANÇA PÚBLICA","cnpj":"46.377.800/0001-27","empenhado":"R$ 91.528,88","liquidado":"R$ 91.528,88","pago":"R$ 73.879,36","anulado":"R$ 0,00","valor_num":91528.88},{"rank":34,"nome":"EDVALDO DONIZETI CALLEGARI EPP","cnpj":"52.667.904/0001-79","empenhado":"R$ 88.902,23","liquidado":"R$ 83.433,42","pago":"R$ 65.440,92","anulado":"R$ 0,00","valor_num":88902.23},{"rank":35,"nome":"GRESPAN & GRESPAN TRANSPORTE ESCOLAR","cnpj":"29.860.738/0001-00","empenhado":"R$ 77.004,24","liquidado":"R$ 45.654,88","pago":"R$ 50.620,18","anulado":"R$ 0,00","valor_num":77004.24},{"rank":36,"nome":"SILVIO CESAR JUNQUEIRA ME","cnpj":"11.434.854/0001-00","empenhado":"R$ 72.845,71","liquidado":"R$ 43.204,31","pago":"R$ 47.899,98","anulado":"R$ 0,00","valor_num":72845.71},{"rank":37,"nome":"LOURECILDA A.J. CORREA LTDA","cnpj":"09.268.895/0001-14","empenhado":"R$ 70.782,54","liquidado":"R$ 43.369,76","pago":"R$ 48.769,40","anulado":"R$ 0,00","valor_num":70782.54},{"rank":38,"nome":"JABOQUE DISTRIBUIDORA DE PRODUTOS HOSPITALARES LTDA","cnpj":"49.851.154/0001-86","empenhado":"R$ 65.800,00","liquidado":"R$ 65.800,00","pago":"R$ 65.800,00","anulado":"R$ 0,00","valor_num":65800.0},{"rank":39,"nome":"SMM PRODUÇÕES LTDA","cnpj":"61.520.897/0001-79","empenhado":"R$ 60.000,00","liquidado":"R$ 60.000,00","pago":"R$ 60.000,00","anulado":"R$ 0,00","valor_num":60000.0},{"rank":40,"nome":"ELISANDRO TADEU BATISTA","cnpj":"35.940.183/0001-00","empenhado":"R$ 58.705,00","liquidado":"R$ 108.704,74","pago":"R$ 78.854,74","anulado":"R$ 0,00","valor_num":58705.0},{"rank":41,"nome":"INSTITUTO NAC. ESP. EM PESQUISA E APOIO (INEPA)","cnpj":"47.825.555/0001-36","empenhado":"R$ 56.000,00","liquidado":"R$ 78.000,00","pago":"R$ 105.000,00","anulado":"R$ 0,00","valor_num":56000.0},{"rank":42,"nome":"TELEFÔNICA BRASIL S.A. (VIVO)","cnpj":"02.558.157/0001-62","empenhado":"R$ 55.998,78","liquidado":"R$ 55.998,78","pago":"R$ 55.998,78","anulado":"R$ 0,00","valor_num":55998.78},{"rank":43,"nome":"MAURO JOVANELLI","cnpj":"002.169.948-88","empenhado":"R$ 53.993,56","liquidado":"R$ 53.993,56","pago":"R$ 53.993,56","anulado":"R$ 0,00","valor_num":53993.56},{"rank":44,"nome":"ALEXANDRE DURANTE SANCHES ME","cnpj":"14.769.070/0001-13","empenhado":"R$ 51.931,44","liquidado":"R$ 30.786,68","pago":"R$ 34.134,46","anulado":"R$ 0,00","valor_num":51931.44},{"rank":45,"nome":"SOCIEDADE INTEGRADA GENTE AMIGA - OSC","cnpj":"07.154.323/0001-89","empenhado":"R$ 51.300,00","liquidado":"R$ 124.731,67","pago":"R$ 124.731,67","anulado":"R$ 0,00","valor_num":51300.0},{"rank":46,"nome":"DIVINOLÂNDIA TRANSPORTE LTDA ME","cnpj":"05.979.179/0001-94","empenhado":"R$ 50.224,00","liquidado":"R$ 29.795,20","pago":"R$ 33.500,80","anulado":"R$ 0,00","valor_num":50224.0},{"rank":47,"nome":"MRJP ENGENHARIA E MEDICINA OCUPACIONAL EIRELLI","cnpj":"03.986.092/0001-19","empenhado":"R$ 48.640,00","liquidado":"R$ 32.000,00","pago":"R$ 32.000,00","anulado":"R$ 0,00","valor_num":48640.0},{"rank":48,"nome":"DULCINEIA C. DOS REIS SILVA & CIA LTDA ME","cnpj":"08.387.010/0001-33","empenhado":"R$ 48.317,50","liquidado":"R$ 28.654,78","pago":"R$ 31.775,59","anulado":"R$ 0,00","valor_num":48317.5},{"rank":49,"nome":"NUTRICIONALE COMÉRCIO DE ALIMENTOS LTDA","cnpj":"08.528.442/0001-17","empenhado":"R$ 45.510,96","liquidado":"R$ 44.131,76","pago":"R$ 42.198,64","anulado":"R$ 0,00","valor_num":45510.96},{"rank":50,"nome":"JOÃO BATISTA ALVES MOREIRA E FILHO LTDA ME","cnpj":"07.222.724/0001-29","empenhado":"R$ 44.467,46","liquidado":"R$ 30.190,94","pago":"R$ 17.145,23","anulado":"R$ 0,00","valor_num":44467.46}];
 
 const MAX_VAL = 9439231.14;
@@ -1091,6 +1594,47 @@ document.addEventListener('DOMContentLoaded', () => {
       const key = th.dataset.sort;
       sortSelect.value = key;
       sortSelect.dispatchEvent(new Event('change'));
+    });
+  });
+
+  // ── SALARY TABLE INIT ──────────────────────────────
+  let sSortKey = 'bruto';
+  let sQuery = '';
+
+  renderSalary(sortSalary(SALARY_DATA, sSortKey));
+
+  const salarySearch = document.getElementById('salarySearch');
+  salarySearch.addEventListener('input', () => {
+    sQuery = salarySearch.value.trim();
+    renderSalary(sortSalary(filterSalary(SALARY_DATA, sQuery), sSortKey), sQuery);
+  });
+
+  const salarySortSel = document.getElementById('salarySortSelect');
+  salarySortSel.addEventListener('change', () => {
+    sSortKey = salarySortSel.value;
+    renderSalary(sortSalary(filterSalary(SALARY_DATA, sQuery), sSortKey), sQuery);
+
+    document.querySelectorAll('.salary-table thead th').forEach(th => {
+      th.classList.remove('sorted-sal');
+      const icon = th.querySelector('.sort-icon');
+      if (icon) icon.textContent = '↕';
+    });
+    const sColMap = { bruto: 5, liq: 7 };
+    if (sSortKey !== 'nome') {
+      const idx = sColMap[sSortKey];
+      const ths = document.querySelectorAll('.salary-table thead th');
+      if (ths[idx - 1]) {
+        ths[idx - 1].classList.add('sorted-sal');
+        const icon = ths[idx - 1].querySelector('.sort-icon');
+        if (icon) icon.textContent = '↓';
+      }
+    }
+  });
+
+  document.querySelectorAll('th[data-ssort]').forEach(th => {
+    th.addEventListener('click', () => {
+      salarySortSel.value = th.dataset.ssort;
+      salarySortSel.dispatchEvent(new Event('change'));
     });
   });
 });
