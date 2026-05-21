@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transparência Divinolândia · Gastos Públicos 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink:       #0D1F0F;
+    --forest:    #0A3622;
+    --leaf:      #1A6B3C;
+    --sage:      #4E9E6B;
+    --mint:      #D4EDE1;
+    --amber:     #C68B2A;
+    --amber-lt:  #F5E8CC;
+    --paper:     #F7F5EF;
+    --white:     #FFFFFF;
+    --gray-1:    #F0EEE8;
+    --gray-2:    #D8D5CC;
+    --gray-3:    #9E9A8E;
+    --gray-4:    #5C5850;
+    --red-soft:  #E8544A;
+    --max:       9439231.14;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── HEADER ───────────────────────────────────────── */
+  .site-header {
+    background: var(--forest);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .site-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--amber) 0%, #E6A83A 50%, var(--amber) 100%);
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 0 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .brasao {
+    width: 48px;
+    height: 48px;
+    background: var(--amber);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(198,139,42,0.3);
+  }
+
+  .header-meta {
+    flex: 1;
+  }
+
+  .header-meta .city {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .header-meta .org {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: 0.01em;
+  }
+
+  .badge-live {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .badge-live span {
+    width: 6px; height: 6px;
+    background: #4EE68A;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .header-title-block {
+    padding: 2rem 0 1.75rem;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+  }
+
+  .main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .main-title em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .header-subtitle {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    max-width: 540px;
+    line-height: 1.6;
+  }
+
+  .period-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── STATS BAR ────────────────────────────────────── */
+  .stats-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  .stats-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+
+  .stat-cell {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--gray-1);
+    transition: background 0.2s;
+  }
+
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell:hover { background: var(--gray-1); }
+
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-3);
+    margin-bottom: 0.2rem;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--forest);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  .stat-sub {
+    font-size: 0.72rem;
+    color: var(--gray-3);
+    margin-top: 0.15rem;
+  }
+
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.leaf { color: var(--leaf); }
+
+  /* ── MAIN LAYOUT ──────────────────────────────────── */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SECTION HEADER ───────────────────────────────── */
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 0.25rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--forest);
+    letter-spacing: -0.01em;
+  }
+
+  /* ── SEARCH & CONTROLS ────────────────────────────── */
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-3);
+    pointer-events: none;
+  }
+
+  .search-input {
+    border: 1.5px solid var(--gray-2);
+    background: var(--white);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    width: 260px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(78,158,107,0.15);
+  }
+
+  .search-input::placeholder { color: var(--gray-3); }
+
+  .sort-select {
+    border: 1.5px solid var(--gray-2);
+    background: var(--white);
+    border-radius: 8px;
+    padding: 0.55rem 2rem 0.55rem 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239E9A8E' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    transition: border-color 0.2s;
+  }
+
+  .sort-select:focus { border-color: var(--sage); outline: none; }
+
+  .result-count {
+    font-size: 0.8rem;
+    color: var(--gray-3);
+    white-space: nowrap;
+  }
+
+  .result-count strong { color: var(--forest); }
+
+  /* ── TABLE ────────────────────────────────────────── */
+  .table-wrap {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--gray-2);
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .data-table thead tr {
+    background: var(--forest);
+    color: var(--white);
+  }
+
+  .data-table thead th {
+    padding: 0.85rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.75);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+
+  .data-table thead th:hover { color: rgba(255,255,255,1); }
+
+  .data-table thead th.sorted { color: var(--amber); }
+
+  .data-table thead th.th-rank { width: 52px; text-align: center; }
+  .data-table thead th.th-name { width: 35%; }
+  .data-table thead th.th-cnpj { width: 14%; }
+  .data-table thead th.th-bar  { width: 20%; }
+  .data-table thead th.th-emp  { width: 13%; text-align: right; }
+  .data-table thead th.th-pago { width: 11%; text-align: right; }
+  .data-table thead th.th-pct  { width: 7%; text-align: right; }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--gray-1);
+    transition: background 0.15s;
+  }
+
+  .data-table tbody tr:last-child { border-bottom: none; }
+  .data-table tbody tr:hover { background: #F0F8F3; }
+
+  .data-table tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+
+  /* Rank */
+  .td-rank {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gray-3);
+    font-weight: 500;
+  }
+
+  .rank-top {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.72rem;
+  }
+
+  .rank-1 { background: #FFD700; color: #5A4400; }
+  .rank-2 { background: #C0C0C0; color: #3A3A3A; }
+  .rank-3 { background: #CD7F32; color: #fff; }
+
+  /* Name */
+  .td-name {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .entity-name {
+    font-size: 0.875rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .entity-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.2rem;
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .type-tag {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.63rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tag-gov   { background: #E8F4FF; color: #1565C0; }
+  .tag-serv  { background: #F3E8FF; color: #6A1B9A; }
+  .tag-saude { background: #E8FFF0; color: #1B5E20; }
+  .tag-edu   { background: #FFF8E1; color: #E65100; }
+  .tag-banco { background: #F5F5F5; color: #333; }
+  .tag-pref  { background: var(--mint); color: var(--forest); }
+  .tag-tran  { background: #FFF3E0; color: #BF360C; }
+  .tag-ong   { background: #FCE4EC; color: #880E4F; }
+  .tag-farm  { background: #E0F2F1; color: #00695C; }
+  .tag-outros { background: var(--gray-1); color: var(--gray-4); }
+
+  /* CNPJ */
+  .td-cnpj {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--gray-3);
+    letter-spacing: 0.02em;
+  }
+
+  /* Bar */
+  .td-bar { padding-right: 0.75rem; }
+
+  .bar-track {
+    height: 6px;
+    background: var(--gray-1);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--sage), var(--leaf));
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .bar-fill.top1 { background: linear-gradient(90deg, #0A3622, #1A6B3C); }
+  .bar-fill.top2 { background: linear-gradient(90deg, #1A5C35, #2E8B57); }
+  .bar-fill.top3 { background: linear-gradient(90deg, #2E7D52, #4CAF50); }
+
+  .bar-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gray-3);
+    margin-top: 0.2rem;
+  }
+
+  /* Valores */
+  .td-value {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .val-emp  { color: var(--forest); font-size: 0.85rem; }
+  .val-pago { color: var(--sage); font-size: 0.82rem; }
+
+  .td-pct {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+  }
+
+  .pct-pill {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .pct-high   { background: var(--mint); color: var(--forest); }
+  .pct-mid    { background: var(--amber-lt); color: #7A5000; }
+  .pct-low    { background: #FEE2E2; color: #991B1B; }
+  .pct-zero   { background: var(--gray-1); color: var(--gray-3); }
+
+  /* ── EMPTY STATE ──────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    display: none;
+  }
+
+  .empty-state.visible { display: block; }
+
+  .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.4;
+  }
+
+  .empty-text {
+    font-size: 0.95rem;
+    color: var(--gray-3);
+  }
+
+  /* ── INFO CARDS ───────────────────────────────────── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    background: var(--white);
+    border: 1px solid var(--gray-2);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .info-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .info-card.green::before  { background: var(--leaf); }
+  .info-card.amber::before  { background: var(--amber); }
+  .info-card.slate::before  { background: var(--forest); }
+
+  .card-ico {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+  }
+
+  .card-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: var(--forest);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .card-num.amber { color: var(--amber); }
+  .card-num.leaf  { color: var(--leaf); }
+
+  .card-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.35rem;
+  }
+
+  .card-detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+  }
+
+  /* ── FOOTER ───────────────────────────────────────── */
+  .site-footer {
+    background: var(--forest);
+    color: rgba(255,255,255,0.5);
+    padding: 1.5rem 2rem;
+    margin-top: 3rem;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-left {
+    font-size: 0.78rem;
+    line-height: 1.6;
+  }
+
+  .footer-left a {
+    color: var(--amber);
+    text-decoration: none;
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-align: right;
+  }
+
+  /* ── LEGEND ───────────────────────────────────────── */
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--gray-4);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-emp  { background: var(--forest); }
+  .dot-pago { background: var(--sage); }
+
+  /* ── RESPONSIVE ───────────────────────────────────── */
+  @media (max-width: 900px) {
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .data-table thead th.th-cnpj,
+    .data-table tbody td:nth-child(3) { display: none; }
+    .data-table thead th.th-pct,
+    .data-table tbody td:nth-child(7) { display: none; }
+    .data-table thead th.th-name { width: 45%; }
+  }
+
+  @media (max-width: 640px) {
+    .main { padding: 1.5rem 1rem 3rem; }
+    .header-inner { padding: 0 1rem; }
+    .info-grid { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .search-input { width: 100%; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .main-title { font-size: 1.75rem; }
+    .data-table thead th.th-bar,
+    .data-table tbody td:nth-child(4) { display: none; }
+  }
+
+  /* ── ANIMATIONS ───────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+  }
+
+  .fade-in-1 { animation-delay: 0.05s; }
+  .fade-in-2 { animation-delay: 0.12s; }
+  .fade-in-3 { animation-delay: 0.20s; }
+  .fade-in-4 { animation-delay: 0.28s; }
+
+  tr.fade-row {
+    opacity: 0;
+    animation: fadeInUp 0.35s ease forwards;
+  }
+
+  /* Sort indicator */
+  .sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0.4;
+    font-size: 0.65rem;
+  }
+  .sorted .sort-icon { opacity: 1; }
+
+  /* Highlight on search */
+  mark {
+    background: #FFEAA0;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="brasao">🌿</div>
+      <div class="header-meta">
+        <div class="city">Prefeitura Municipal</div>
+        <div class="org">Divinolândia · São Paulo</div>
+      </div>
+      <div class="badge-live"><span></span> Dados Atualizados</div>
+    </div>
+    <div class="header-title-block">
+      <div class="eyebrow">Portal da Transparência</div>
+      <h1 class="main-title">Para onde vai<br><em>o seu dinheiro</em></h1>
+      <p class="header-subtitle">Acompanhe os maiores gastos públicos do município em 2026. Dados extraídos diretamente do sistema oficial de transparência.</p>
+      <div class="period-tag">
+        📅 Período: 01 jan 2026 – 21 mai 2026 &nbsp;·&nbsp; Top 50 maiores credores
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-cell">
+      <div class="stat-label">Total Empenhado</div>
+      <div class="stat-value" id="stat-emp">R$ 29,5 M</div>
+      <div class="stat-sub">Top 50 credores</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Total Pago</div>
+      <div class="stat-value leaf" id="stat-pago">—</div>
+      <div class="stat-sub">Efetivamente pago</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">% Pago / Empenhado</div>
+      <div class="stat-value amber" id="stat-pct">—</div>
+      <div class="stat-sub">Execução orçamentária</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Credores Listados</div>
+      <div class="stat-value" id="stat-count">50</div>
+      <div class="stat-sub">De 566 no sistema</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- INFO CARDS -->
+  <div class="info-grid fade-in fade-in-1">
+    <div class="info-card green">
+      <div class="card-ico">👥</div>
+      <div class="card-num" id="card-folha">R$ 9,4 M</div>
+      <div class="card-label">Folha de Pagamento</div>
+      <div class="card-detail">Maior gasto do município — servidores públicos municipais.</div>
+    </div>
+    <div class="info-card amber">
+      <div class="card-ico">🏛️</div>
+      <div class="card-num amber" id="card-ipmd">R$ 7,2 M</div>
+      <div class="card-label">Previdência Municipal (IPMD)</div>
+      <div class="card-detail">Instituto de previdência dos servidores de Divinolândia.</div>
+    </div>
+    <div class="info-card slate">
+      <div class="card-ico">🎫</div>
+      <div class="card-num leaf" id="card-link">R$ 2,2 M</div>
+      <div class="card-label">Vale Benefícios (Link Card)</div>
+      <div class="card-detail">Vale-alimentação e benefícios para os servidores municipais.</div>
+    </div>
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="section-head fade-in fade-in-2">
+    <div>
+      <div class="section-label">Ranking de gastos</div>
+      <h2 class="section-title">50 Maiores Credores</h2>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" id="searchInput" placeholder="Buscar credor ou CNPJ…" autocomplete="off">
+      </div>
+      <select class="sort-select" id="sortSelect">
+        <option value="emp">Ordenar: Empenhado ↓</option>
+        <option value="pago">Ordenar: Pago ↓</option>
+        <option value="nome">Ordenar: Nome A→Z</option>
+        <option value="pct">Ordenar: % Pago ↓</option>
+      </select>
+      <span class="result-count" id="resultCount"><strong>50</strong> resultados</span>
+    </div>
+  </div>
+
+  <div class="legend fade-in fade-in-2">
+    <div class="legend-item"><span class="legend-dot dot-emp"></span> Valor Empenhado</div>
+    <div class="legend-item"><span class="legend-dot dot-pago"></span> Valor Pago</div>
+  </div>
+
+  <div class="table-wrap fade-in fade-in-3">
+    <table class="data-table" id="dataTable">
+      <thead>
+        <tr>
+          <th class="th-rank">#</th>
+          <th class="th-name" data-sort="nome">Credor <span class="sort-icon">↕</span></th>
+          <th class="th-cnpj">CNPJ / CPF</th>
+          <th class="th-bar">Proporção do gasto</th>
+          <th class="th-emp sorted" data-sort="emp">Empenhado <span class="sort-icon">↓</span></th>
+          <th class="th-pago" data-sort="pago">Pago <span class="sort-icon">↕</span></th>
+          <th class="th-pct" data-sort="pct">% Pago <span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-text">Nenhum credor encontrado para a busca.</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      Dados extraídos via web scraping do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank">Portal Oficial de Transparência</a> · Sistema PRONIM TB · Cidade360<br>
+      Portal não oficial — para fins informativos e educacionais.
+    </div>
+    <div class="footer-right">
+      Atualizado em 21/05/2026<br>
+      Prefeitura de Divinolândia · SP
+    </div>
+  </div>
+</footer>
+
+<script>
+const DATA = [{"rank":1,"nome":"FOLHA DE PAGAMENTO","cnpj":"46.435.921/0001-88","empenhado":"R$ 9.439.231,14","liquidado":"R$ 8.827.719,19","pago":"R$ 8.637.190,07","anulado":"R$ 227.833,64","valor_num":9439231.14},{"rank":2,"nome":"INSTITUTO PREVID. DO MUNIC. DE DIVINOLÂNDIA","cnpj":"05.119.717/0001-70","empenhado":"R$ 7.235.391,22","liquidado":"R$ 2.157.288,51","pago":"R$ 2.764.727,10","anulado":"R$ 1.110.409,05","valor_num":7235391.22},{"rank":3,"nome":"LINK CARD ADMINISTRADORA DE BENEFICIOS EIRELI","cnpj":"12.039.966/0001-11","empenhado":"R$ 2.243.651,59","liquidado":"R$ 750.159,89","pago":"R$ 999.642,40","anulado":"R$ 199.144,87","valor_num":2243651.59},{"rank":4,"nome":"CONDERG - Cons. Des. Regional Gov. SJB","cnpj":"52.356.268/0002-45","empenhado":"R$ 1.670.337,46","liquidado":"R$ 1.093.173,00","pago":"R$ 1.009.217,74","anulado":"R$ 0,00","valor_num":1670337.46},{"rank":5,"nome":"VEROCHEQUE REFEIÇÕES LTDA","cnpj":"06.344.497/0001-41","empenhado":"R$ 1.631.521,20","liquidado":"R$ 1.635.515,30","pago":"R$ 1.726.852,25","anulado":"R$ 0,00","valor_num":1631521.2},{"rank":6,"nome":"INSTITUTO NACIONAL DO SEGURO SOCIAL (INSS)","cnpj":"29.979.036/0001-40","empenhado":"R$ 607.550,94","liquidado":"R$ 420.112,23","pago":"R$ 597.173,92","anulado":"R$ 0,00","valor_num":607550.94},{"rank":7,"nome":"TRIBUNAL DE JUSTIÇA DO ESTADO DE SÃO PAULO","cnpj":"51.174.001/0001-93","empenhado":"R$ 509.496,20","liquidado":"R$ 293.277,13","pago":"R$ 242.582,50","anulado":"R$ 0,00","valor_num":509496.2},{"rank":8,"nome":"TRANSER - Centro de Gerenciamento de Resíduos Ltda","cnpj":"17.712.643/0001-60","empenhado":"R$ 439.078,98","liquidado":"R$ 525.685,94","pago":"R$ 615.355,92","anulado":"R$ 0,00","valor_num":439078.98},{"rank":9,"nome":"MINISTÉRIO DA FAZENDA - Receita Federal do Brasil","cnpj":"00.394.460/0058-87","empenhado":"R$ 400.000,00","liquidado":"R$ 262.885,50","pago":"R$ 156.452,07","anulado":"R$ 0,00","valor_num":400000.0},{"rank":10,"nome":"COMERCIAL GERMANICA LIMITADA","cnpj":"02.952.561/0004-69","empenhado":"R$ 386.400,00","liquidado":"R$ 386.400,00","pago":"R$ 193.740,00","anulado":"R$ 0,00","valor_num":386400.0},{"rank":11,"nome":"GOVERNANÇABRASIL S/A Tecnologia e Gestão em Serviços","cnpj":"00.165.960/0001-01","empenhado":"R$ 385.410,00","liquidado":"R$ 409.115,49","pago":"R$ 462.190,98","anulado":"R$ 0,00","valor_num":385410.0},{"rank":12,"nome":"BANCO BRADESCO S/A","cnpj":"00.000.000/0002-96","empenhado":"R$ 379.922,69","liquidado":"R$ 0,00","pago":"R$ 319.666,08","anulado":"R$ 0,00","valor_num":379922.69},{"rank":13,"nome":"PONTUAL FARMACÊUTICA NR 2006 LTDA","cnpj":"07.724.173/0004-44","empenhado":"R$ 330.516,45","liquidado":"R$ 66.103,29","pago":"R$ 44.068,86","anulado":"R$ 0,00","valor_num":330516.45},{"rank":14,"nome":"LAR DE IDOSOS SÃO VICENTE DE PAULO","cnpj":"44.840.411/0001-60","empenhado":"R$ 241.600,00","liquidado":"R$ 228.048,25","pago":"R$ 128.048,25","anulado":"R$ 0,00","valor_num":241600.0},{"rank":15,"nome":"CONFIATTA CONSULTORIA E GESTÃO LTDA EPP","cnpj":"08.496.850/0001-34","empenhado":"R$ 228.000,00","liquidado":"R$ 95.000,00","pago":"R$ 95.000,00","anulado":"R$ 0,00","valor_num":228000.0},{"rank":16,"nome":"CAIQUE TRANSPORTES LTDA","cnpj":"09.293.354/0001-46","empenhado":"R$ 214.933,84","liquidado":"R$ 125.194,72","pago":"R$ 141.497,46","anulado":"R$ 0,00","valor_num":214933.84},{"rank":17,"nome":"VLC SOLUÇÕES EMPRESARIAIS","cnpj":"05.198.313/0001-10","empenhado":"R$ 195.000,00","liquidado":"R$ 75.000,00","pago":"R$ 105.000,00","anulado":"R$ 0,00","valor_num":195000.0},{"rank":18,"nome":"CAIXA ECONÔMICA FEDERAL","cnpj":"00.000.000/0016-19","empenhado":"R$ 171.641,76","liquidado":"R$ 0,00","pago":"R$ 155.232,95","anulado":"R$ 0,00","valor_num":171641.76},{"rank":19,"nome":"LUCIANE DE ALMEIDA FAGUNDES ME","cnpj":"13.059.676/0001-00","empenhado":"R$ 160.390,65","liquidado":"R$ 123.106,94","pago":"R$ 139.557,23","anulado":"R$ 0,00","valor_num":160390.65},{"rank":20,"nome":"FB TELECOMUNICAÇÕES LTDA ME","cnpj":"30.572.475/0001-13","empenhado":"R$ 157.652,87","liquidado":"R$ 97.977,52","pago":"R$ 103.168,17","anulado":"R$ 0,00","valor_num":157652.87},{"rank":21,"nome":"LAR DA CRIANÇA DE DIVINOLÂNDIA","cnpj":"51.311.769/0001-61","empenhado":"R$ 153.600,00","liquidado":"R$ 113.993,17","pago":"R$ 113.993,17","anulado":"R$ 16.800,00","valor_num":153600.0},{"rank":22,"nome":"TRANSPORTE ESCOLAR GRESPAN LTDA ME","cnpj":"08.596.863/0001-85","empenhado":"R$ 150.656,67","liquidado":"R$ 100.269,35","pago":"R$ 111.687,18","anulado":"R$ 0,00","valor_num":150656.67},{"rank":23,"nome":"JAVEP - Veículos, Peças e Serviços LTDA","cnpj":"50.752.211/0007-44","empenhado":"R$ 147.800,00","liquidado":"R$ 147.800,00","pago":"R$ 147.800,00","anulado":"R$ 0,00","valor_num":147800.0},{"rank":24,"nome":"BANCO DO BRASIL S/A","cnpj":"00.000.000/0801-75","empenhado":"R$ 123.248,63","liquidado":"R$ 0,00","pago":"R$ 119.835,49","anulado":"R$ 0,00","valor_num":123248.63},{"rank":25,"nome":"NEW HIGIPEL COMERCIAL LTDA","cnpj":"44.989.569/0001-05","empenhado":"R$ 121.785,95","liquidado":"R$ 121.785,95","pago":"R$ 0,00","anulado":"R$ 0,00","valor_num":121785.95},{"rank":26,"nome":"PRODESP - Cia. Processamento de Dados do Estado de SP","cnpj":"62.577.929/0001-35","empenhado":"R$ 116.932,06","liquidado":"R$ 62.412,57","pago":"R$ 62.412,57","anulado":"R$ 87,52","valor_num":116932.06},{"rank":27,"nome":"SABESP - Cia Saneamento Básico do Estado de SP","cnpj":"43.776.517/0001-80","empenhado":"R$ 115.200,00","liquidado":"R$ 53.594,42","pago":"R$ 53.594,42","anulado":"R$ 0,00","valor_num":115200.0},{"rank":28,"nome":"BANCO DO BRASIL SA","cnpj":"00.000.000/0001-91","empenhado":"R$ 112.427,89","liquidado":"R$ 109.179,56","pago":"R$ 109.121,91","anulado":"R$ 0,00","valor_num":112427.89},{"rank":29,"nome":"J&A COMERCIAL DO BRASIL LTDA","cnpj":"35.156.745/0001-29","empenhado":"R$ 102.602,00","liquidado":"R$ 89.924,00","pago":"R$ 74.821,43","anulado":"R$ 0,00","valor_num":102602.0},{"rank":30,"nome":"JEAN & SÉRGIO TRANSPORTE ESCOLAR LTDA-ME","cnpj":"10.674.594/0001-70","empenhado":"R$ 102.587,42","liquidado":"R$ 75.243,04","pago":"R$ 83.424,50","anulado":"R$ 0,00","valor_num":102587.42},{"rank":31,"nome":"GENTE SEGURADORA S/A","cnpj":"90.180.605/0001-02","empenhado":"R$ 92.688,75","liquidado":"R$ 77.740,53","pago":"R$ 78.025,71","anulado":"R$ 0,00","valor_num":92688.75},{"rank":32,"nome":"CPFL ENERGIA","cnpj":"53.859.112/0001-69","empenhado":"R$ 92.040,00","liquidado":"R$ 57.693,89","pago":"R$ 57.693,89","anulado":"R$ 0,00","valor_num":92040.0},{"rank":33,"nome":"SÃO PAULO - SECRETARIA DE SEGURANÇA PÚBLICA","cnpj":"46.377.800/0001-27","empenhado":"R$ 91.528,88","liquidado":"R$ 91.528,88","pago":"R$ 73.879,36","anulado":"R$ 0,00","valor_num":91528.88},{"rank":34,"nome":"EDVALDO DONIZETI CALLEGARI EPP","cnpj":"52.667.904/0001-79","empenhado":"R$ 88.902,23","liquidado":"R$ 83.433,42","pago":"R$ 65.440,92","anulado":"R$ 0,00","valor_num":88902.23},{"rank":35,"nome":"GRESPAN & GRESPAN TRANSPORTE ESCOLAR","cnpj":"29.860.738/0001-00","empenhado":"R$ 77.004,24","liquidado":"R$ 45.654,88","pago":"R$ 50.620,18","anulado":"R$ 0,00","valor_num":77004.24},{"rank":36,"nome":"SILVIO CESAR JUNQUEIRA ME","cnpj":"11.434.854/0001-00","empenhado":"R$ 72.845,71","liquidado":"R$ 43.204,31","pago":"R$ 47.899,98","anulado":"R$ 0,00","valor_num":72845.71},{"rank":37,"nome":"LOURECILDA A.J. CORREA LTDA","cnpj":"09.268.895/0001-14","empenhado":"R$ 70.782,54","liquidado":"R$ 43.369,76","pago":"R$ 48.769,40","anulado":"R$ 0,00","valor_num":70782.54},{"rank":38,"nome":"JABOQUE DISTRIBUIDORA DE PRODUTOS HOSPITALARES LTDA","cnpj":"49.851.154/0001-86","empenhado":"R$ 65.800,00","liquidado":"R$ 65.800,00","pago":"R$ 65.800,00","anulado":"R$ 0,00","valor_num":65800.0},{"rank":39,"nome":"SMM PRODUÇÕES LTDA","cnpj":"61.520.897/0001-79","empenhado":"R$ 60.000,00","liquidado":"R$ 60.000,00","pago":"R$ 60.000,00","anulado":"R$ 0,00","valor_num":60000.0},{"rank":40,"nome":"ELISANDRO TADEU BATISTA","cnpj":"35.940.183/0001-00","empenhado":"R$ 58.705,00","liquidado":"R$ 108.704,74","pago":"R$ 78.854,74","anulado":"R$ 0,00","valor_num":58705.0},{"rank":41,"nome":"INSTITUTO NAC. ESP. EM PESQUISA E APOIO (INEPA)","cnpj":"47.825.555/0001-36","empenhado":"R$ 56.000,00","liquidado":"R$ 78.000,00","pago":"R$ 105.000,00","anulado":"R$ 0,00","valor_num":56000.0},{"rank":42,"nome":"TELEFÔNICA BRASIL S.A. (VIVO)","cnpj":"02.558.157/0001-62","empenhado":"R$ 55.998,78","liquidado":"R$ 55.998,78","pago":"R$ 55.998,78","anulado":"R$ 0,00","valor_num":55998.78},{"rank":43,"nome":"MAURO JOVANELLI","cnpj":"002.169.948-88","empenhado":"R$ 53.993,56","liquidado":"R$ 53.993,56","pago":"R$ 53.993,56","anulado":"R$ 0,00","valor_num":53993.56},{"rank":44,"nome":"ALEXANDRE DURANTE SANCHES ME","cnpj":"14.769.070/0001-13","empenhado":"R$ 51.931,44","liquidado":"R$ 30.786,68","pago":"R$ 34.134,46","anulado":"R$ 0,00","valor_num":51931.44},{"rank":45,"nome":"SOCIEDADE INTEGRADA GENTE AMIGA - OSC","cnpj":"07.154.323/0001-89","empenhado":"R$ 51.300,00","liquidado":"R$ 124.731,67","pago":"R$ 124.731,67","anulado":"R$ 0,00","valor_num":51300.0},{"rank":46,"nome":"DIVINOLÂNDIA TRANSPORTE LTDA ME","cnpj":"05.979.179/0001-94","empenhado":"R$ 50.224,00","liquidado":"R$ 29.795,20","pago":"R$ 33.500,80","anulado":"R$ 0,00","valor_num":50224.0},{"rank":47,"nome":"MRJP ENGENHARIA E MEDICINA OCUPACIONAL EIRELLI","cnpj":"03.986.092/0001-19","empenhado":"R$ 48.640,00","liquidado":"R$ 32.000,00","pago":"R$ 32.000,00","anulado":"R$ 0,00","valor_num":48640.0},{"rank":48,"nome":"DULCINEIA C. DOS REIS SILVA & CIA LTDA ME","cnpj":"08.387.010/0001-33","empenhado":"R$ 48.317,50","liquidado":"R$ 28.654,78","pago":"R$ 31.775,59","anulado":"R$ 0,00","valor_num":48317.5},{"rank":49,"nome":"NUTRICIONALE COMÉRCIO DE ALIMENTOS LTDA","cnpj":"08.528.442/0001-17","empenhado":"R$ 45.510,96","liquidado":"R$ 44.131,76","pago":"R$ 42.198,64","anulado":"R$ 0,00","valor_num":45510.96},{"rank":50,"nome":"JOÃO BATISTA ALVES MOREIRA E FILHO LTDA ME","cnpj":"07.222.724/0001-29","empenhado":"R$ 44.467,46","liquidado":"R$ 30.190,94","pago":"R$ 17.145,23","anulado":"R$ 0,00","valor_num":44467.46}];
+
+const MAX_VAL = 9439231.14;
+
+// Classify entity type
+function classifyEntity(nome) {
+  const n = nome.toLowerCase();
+  if (n.includes('folha') || n.includes('pagamento')) return { label: 'Folha', cls: 'tag-pref' };
+  if (n.includes('banco') || n.includes('bradesco') || n.includes('caixa') || n.includes('sicredi') || n.includes('sicob')) return { label: 'Banco', cls: 'tag-banco' };
+  if (n.includes('inss') || n.includes('seguro social') || n.includes('previd') || n.includes('ipmd')) return { label: 'Previdência', cls: 'tag-gov' };
+  if (n.includes('receita federal') || n.includes('fazenda') || n.includes('tribunal') || n.includes('seg. pública') || n.includes('segurança pública') || n.includes('prodesp') || n.includes('secretaria')) return { label: 'Gov. Estadual/Fed.', cls: 'tag-gov' };
+  if (n.includes('transport') || n.includes('transer') || n.includes('caique')) return { label: 'Transporte', cls: 'tag-tran' };
+  if (n.includes('farmac') || n.includes('hospitalar') || n.includes('medic') || n.includes('saúde') || n.includes('saude') || n.includes('mastolog') || n.includes('fonoudiolog') || n.includes('jaboque') || n.includes('nutric') || n.includes('gente segur')) return { label: 'Saúde', cls: 'tag-saude' };
+  if (n.includes('escola') || n.includes('ciee') || n.includes('integração') || n.includes('integra') || n.includes('inepa') || n.includes('pesquisa')) return { label: 'Educação', cls: 'tag-edu' };
+  if (n.includes('lar da') || n.includes('lar de') || n.includes('gente amiga') || n.includes('osc') || n.includes('são vicente')) return { label: 'ONG/Social', cls: 'tag-ong' };
+  if (n.includes('cpfl') || n.includes('sabesp') || n.includes('vivo') || n.includes('telefon') || n.includes('telecomunic') || n.includes('fb telec')) return { label: 'Serviços Públicos', cls: 'tag-serv' };
+  return { label: 'Outros', cls: 'tag-outros' };
+}
+
+// Parse BR currency to number
+function parseVal(s) {
+  if (!s || s === 'R$ 0,00') return 0;
+  return parseFloat(s.replace('R$ ','').replace(/\./g,'').replace(',','.')) || 0;
+}
+
+// Format BR currency
+function fmtBR(n) {
+  return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+// ── RENDER TABLE ──────────────────────────────────────
+let currentData = [...DATA];
+let sortKey = 'emp';
+let searchQuery = '';
+
+function renderTable(data, query = '') {
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.add('visible');
+    document.getElementById('resultCount').innerHTML = '<strong>0</strong> resultados';
+    return;
+  }
+
+  empty.classList.remove('visible');
+  document.getElementById('resultCount').innerHTML = `<strong>${data.length}</strong> resultado${data.length !== 1 ? 's' : ''}`;
+
+  function hl(text, q) {
+    if (!q) return text;
+    const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+  }
+
+  tbody.innerHTML = data.map((d, i) => {
+    const pct = d.valor_num > 0 ? (parseVal(d.pago) / d.valor_num * 100) : 0;
+    const barW = (d.valor_num / MAX_VAL * 100).toFixed(1);
+    const barCls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    const ent = classifyEntity(d.nome);
+
+    let rankHtml;
+    if (i < 3) {
+      rankHtml = `<span class="rank-top rank-${i+1}">${i+1}</span>`;
+    } else {
+      rankHtml = `${i+1}`;
+    }
+
+    let pctCls = 'pct-zero';
+    if (pct >= 75) pctCls = 'pct-high';
+    else if (pct >= 40) pctCls = 'pct-mid';
+    else if (pct > 0) pctCls = 'pct-low';
+
+    const nomeHl = hl(d.nome, query);
+    const cnpjHl = hl(d.cnpj, query);
+
+    return `<tr class="fade-row" style="animation-delay:${Math.min(i * 0.025, 0.5)}s">
+      <td class="td-rank">${rankHtml}</td>
+      <td class="td-name">
+        <div class="entity-name">${nomeHl}</div>
+        <span class="type-tag ${ent.cls}">${ent.label}</span>
+      </td>
+      <td class="td-cnpj">${cnpjHl}</td>
+      <td class="td-bar">
+        <div class="bar-track">
+          <div class="bar-fill ${barCls}" style="width:${barW}%" data-w="${barW}"></div>
+        </div>
+        <div class="bar-pct">${barW}% do maior</div>
+      </td>
+      <td class="td-value val-emp">${d.empenhado}</td>
+      <td class="td-value val-pago">${d.pago}</td>
+      <td class="td-pct"><span class="pct-pill ${pctCls}">${pct > 0 ? pct.toFixed(0) + '%' : '—'}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Animate bars after render
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.transform = `scaleX(${parseFloat(el.dataset.w) / 100})`;
+      });
+    });
+  });
+}
+
+// ── SORT ──────────────────────────────────────────────
+function sortData(data, key) {
+  return [...data].sort((a, b) => {
+    if (key === 'nome') return a.nome.localeCompare(b.nome, 'pt-BR');
+    if (key === 'emp')  return b.valor_num - a.valor_num;
+    if (key === 'pago') return parseVal(b.pago) - parseVal(a.pago);
+    if (key === 'pct') {
+      const pa = a.valor_num > 0 ? parseVal(a.pago) / a.valor_num : 0;
+      const pb = b.valor_num > 0 ? parseVal(b.pago) / b.valor_num : 0;
+      return pb - pa;
+    }
+    return 0;
+  });
+}
+
+// ── FILTER ────────────────────────────────────────────
+function filterData(data, q) {
+  if (!q) return data;
+  const lq = q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  return data.filter(d => {
+    const n = d.nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const c = d.cnpj.toLowerCase();
+    return n.includes(lq) || c.includes(lq);
+  });
+}
+
+// ── STATS ─────────────────────────────────────────────
+function updateStats() {
+  const totalEmp  = DATA.reduce((s, d) => s + d.valor_num, 0);
+  const totalPago = DATA.reduce((s, d) => s + parseVal(d.pago), 0);
+  const pct = totalPago / totalEmp * 100;
+
+  const fmt = (n) => {
+    if (n >= 1e6) return 'R$ ' + (n/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + ' M';
+    return fmtBR(n);
+  };
+
+  document.getElementById('stat-emp').textContent   = fmt(totalEmp);
+  document.getElementById('stat-pago').textContent  = fmt(totalPago);
+  document.getElementById('stat-pct').textContent   = pct.toFixed(1) + '%';
+  document.getElementById('stat-count').textContent = DATA.length;
+}
+
+// ── INIT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateStats();
+
+  currentData = sortData(DATA, sortKey);
+  renderTable(currentData, searchQuery);
+
+  // Search
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim();
+    const filtered = filterData(DATA, searchQuery);
+    currentData = sortData(filtered, sortKey);
+    renderTable(currentData, searchQuery);
+  });
+
+  // Sort select
+  const sortSelect = document.getElementById('sortSelect');
+  sortSelect.addEventListener('change', () => {
+    sortKey = sortSelect.value;
+    currentData = sortData(filterData(DATA, searchQuery), sortKey);
+    renderTable(currentData, searchQuery);
+
+    // Update header highlight
+    document.querySelectorAll('.data-table thead th').forEach(th => {
+      th.classList.remove('sorted');
+      const icon = th.querySelector('.sort-icon');
+      if (icon) icon.textContent = '↕';
+    });
+    const colMap = { emp: 5, pago: 6, pct: 7 };
+    if (sortKey !== 'nome') {
+      const idx = colMap[sortKey];
+      const ths = document.querySelectorAll('.data-table thead th');
+      if (ths[idx - 1]) {
+        ths[idx - 1].classList.add('sorted');
+        const icon = ths[idx - 1].querySelector('.sort-icon');
+        if (icon) icon.textContent = '↓';
+      }
+    }
+  });
+
+  // Column header sort
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      sortSelect.value = key;
+      sortSelect.dispatchEvent(new Event('change'));
+    });
+  });
+});
+</script>
+</body>
+</html>
