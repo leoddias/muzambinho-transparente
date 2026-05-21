@@ -1055,6 +1055,115 @@
     .site-footer     { padding: 1.5rem 2rem; }
     .legal-banner-inner { padding: 0.75rem 2rem; }
     .salary-section  { margin-top: 3.5rem; }
+    .empenhos-section { margin-top: 3.5rem; }
+  }
+
+  /* ── EMPENHOS SECTION ─────────────────────────────── */
+  .empenhos-section { margin-top: 2.5rem; }
+
+  .cat-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.75rem 0 1rem;
+  }
+  .cat-btn {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    border: 1.5px solid #C8C8D8;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .cat-btn.active,
+  .cat-btn:hover {
+    background: #1A1A2E;
+    color: #fff;
+    border-color: #1A1A2E;
+  }
+
+  .emp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  .emp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .emp-table thead tr { background: #1A1A2E; color: #fff; }
+  .emp-table thead th {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: left;
+  }
+  .emp-table thead th.th-emp-val { text-align: right; }
+  .emp-table tbody tr {
+    border-bottom: 1px solid #EAEAF0;
+    transition: background 0.12s;
+  }
+  .emp-table tbody tr:last-child { border-bottom: none; }
+  .emp-table tbody tr:hover { background: #F0F0FA; }
+  .emp-table tbody td {
+    padding: 0.65rem 0.85rem;
+    vertical-align: top;
+    color: #333;
+  }
+  .emp-table tbody td.td-val {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: #1A1A2E;
+    white-space: nowrap;
+  }
+  .emp-table tbody td.td-desc {
+    max-width: 280px;
+    word-break: break-word;
+  }
+  .emp-cat-badge {
+    display: inline-block;
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    background: #E8E8F4;
+    color: #444;
+  }
+  /* category colors */
+  .emp-cat-badge.cat-obra       { background:#FFF3CD; color:#7A5000; }
+  .emp-cat-badge.cat-saude      { background:#FFE0E0; color:#7A0000; }
+  .emp-cat-badge.cat-alimento   { background:#E8FFE8; color:#006600; }
+  .emp-cat-badge.cat-veiculo    { background:#E0F0FF; color:#003D7A; }
+  .emp-cat-badge.cat-combustivel{ background:#FFF0E0; color:#7A3D00; }
+  .emp-cat-badge.cat-folha      { background:#F0E8FF; color:#3D0080; }
+  .emp-cat-badge.cat-previdencia{ background:#F0E8FF; color:#3D0080; }
+  .emp-cat-badge.cat-servico    { background:#E8F4FF; color:#005080; }
+  .emp-cat-badge.cat-tecnologia { background:#E0FFE0; color:#005000; }
+  .emp-cat-badge.cat-educacao   { background:#FFF8E0; color:#806000; }
+  .emp-cat-badge.cat-repasse    { background:#F0F0F0; color:#404040; }
+  .emp-cat-badge.cat-outros     { background:#F0F0F0; color:#404040; }
+
+  /* hide credor on mobile, show on 640px+ */
+  .th-emp-credor, .td-credor { display: none; }
+  @media (min-width: 640px) {
+    .th-emp-credor, .td-credor { display: table-cell; }
+  }
+  @media (min-width: 900px) {
+    .emp-table { table-layout: fixed; }
+    .emp-table thead th.th-emp-cat    { width: 135px; }
+    .emp-table thead th.th-emp-credor { width: 22%; }
+    .emp-table thead th.th-emp-desc   { width: auto; }
+    .emp-table thead th.th-emp-val    { width: 120px; }
+    .emp-table tbody td               { padding: 0.75rem 0.85rem; }
   }
 
   /* ── ANIMATIONS ───────────────────────────────────── */
@@ -1290,6 +1399,49 @@
       <div class="empty-state" id="salaryEmpty">
         <div class="empty-icon">🔍</div>
         <div class="empty-text">Nenhum servidor encontrado.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MAIORES EMPENHOS ──────────────────────────────────────────────── -->
+  <section class="empenhos-section fade-in fade-in-4">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Empenhos e Contratos</div>
+        <h2 class="section-title">Maiores Compras e Contratos</h2>
+      </div>
+      <div class="salary-controls">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="empSearch" placeholder="Buscar fornecedor ou descrição…" autocomplete="off">
+        </div>
+        <span class="result-count" id="empCount"><strong>50</strong> empenhos</span>
+      </div>
+    </div>
+
+    <div class="demo-notice">
+      ✅ <strong>Dados oficiais</strong> — Extraídos do <a href="https://webapp1-divinolandia.cidade360.cloud/pronimtb/" target="_blank" style="color:#7A5000;font-weight:600;">Portal de Transparência</a>. Inclui empenhos de 2026 e restos a pagar de 2025. Última atualização: 21/05/2026.
+    </div>
+
+    <div class="cat-filters" id="catFilters">
+      <button class="cat-btn active" data-cat="">Todos</button>
+    </div>
+
+    <div class="emp-table-wrap">
+      <table class="emp-table" id="empTable">
+        <thead>
+          <tr>
+            <th class="th-emp-cat">Categoria</th>
+            <th class="th-emp-credor">Fornecedor / Credor</th>
+            <th class="th-emp-desc">Descrição</th>
+            <th class="th-emp-val">Valor Empenhado</th>
+          </tr>
+        </thead>
+        <tbody id="empBody"></tbody>
+      </table>
+      <div class="empty-state" id="empEmpty" style="display:none;">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-text">Nenhum empenho encontrado.</div>
       </div>
     </div>
   </section>
@@ -1857,6 +2009,123 @@ document.addEventListener('DOMContentLoaded', () => {
       salarySortSel.dispatchEvent(new Event('change'));
     });
   });
+
+  // ── EMPENHOS ────────────────────────────────────────────────────────────
+  const CAT_CLASS = {
+    'Obras / Construção':         'cat-obra',
+    'Saúde / Medicamentos':       'cat-saude',
+    'Alimentação / Merenda':      'cat-alimento',
+    'Veículo / Maquinário':       'cat-veiculo',
+    'Combustível / Manutenção':   'cat-combustivel',
+    'Folha de Pagamento':         'cat-folha',
+    'Previdência / RPPS':         'cat-previdencia',
+    'Serviços Terceirizados':     'cat-servico',
+    'Tecnologia / Sistemas':      'cat-tecnologia',
+    'Educação':                   'cat-educacao',
+    'Repasse / Convênio':         'cat-repasse',
+    'Diárias / Viagens':          'cat-servico',
+    'Outros':                     'cat-outros',
+  };
+
+  function fmtBRL(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function truncate(s, n) {
+    if (!s) return '';
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+
+  function renderEmpenhos(data, query) {
+    const body = document.getElementById('empBody');
+    const empty = document.getElementById('empEmpty');
+    const count = document.getElementById('empCount');
+    if (!body) return;
+
+    const q = (query || '').toLowerCase().trim();
+    const filtered = q
+      ? data.filter(d =>
+          (d.credor || '').toLowerCase().includes(q) ||
+          (d.descricao || '').toLowerCase().includes(q) ||
+          (d.categoria || '').toLowerCase().includes(q))
+      : data;
+
+    count.innerHTML = `<strong>${filtered.length}</strong> empenho${filtered.length !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+      body.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    body.innerHTML = filtered.map(d => {
+      const catCls = CAT_CLASS[d.categoria] || 'cat-outros';
+      const desc = truncate(d.descricao || d.credor, 120);
+      const sourceTag = d.fonte && d.fonte.includes('Restos')
+        ? `<span style="font-size:0.6rem;color:#888;display:block;margin-top:2px;">Restos a Pagar 2025</span>` : '';
+      return `<tr>
+        <td><span class="emp-cat-badge ${catCls}">${d.categoria}</span></td>
+        <td class="td-credor" title="${d.credor}">${truncate(d.credor, 35)}</td>
+        <td class="td-desc" title="${d.descricao}">${desc}${sourceTag}</td>
+        <td class="td-val">${fmtBRL(d.valor)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Load empenhos JSON
+  fetch('data/empenhos_top50.json')
+    .then(r => r.json())
+    .then(data => {
+      // Build category filter buttons
+      const cats = [...new Set(data.map(d => d.categoria))].sort();
+      const filtersEl = document.getElementById('catFilters');
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn';
+        btn.dataset.cat = cat;
+        btn.textContent = cat;
+        filtersEl.appendChild(btn);
+      });
+
+      let activeCat = '';
+      let empQuery = '';
+
+      function getFiltered() {
+        return activeCat ? data.filter(d => d.categoria === activeCat) : data;
+      }
+
+      function refresh() {
+        renderEmpenhos(getFiltered(), empQuery);
+      }
+
+      // Category filter clicks
+      filtersEl.addEventListener('click', e => {
+        const btn = e.target.closest('.cat-btn');
+        if (!btn) return;
+        filtersEl.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.cat;
+        refresh();
+      });
+
+      // Search
+      const empSearchEl = document.getElementById('empSearch');
+      if (empSearchEl) {
+        empSearchEl.addEventListener('input', () => {
+          empQuery = empSearchEl.value;
+          refresh();
+        });
+      }
+
+      refresh();
+    })
+    .catch(e => {
+      console.warn('empenhos_top50.json not found:', e);
+      const el = document.getElementById('empEmpty');
+      if (el) { el.style.display = ''; el.querySelector('.empty-text').textContent = 'Dados não disponíveis. Execute o scraper para atualizar.'; }
+    });
+
 });
 </script>
 </body>
