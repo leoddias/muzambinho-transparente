@@ -1059,6 +1059,129 @@
     .diarias-section { margin-top: 3.5rem; }
   }
 
+
+  /* ── DESTAQUES ────────────────────────────────────── */
+  .destaques-section {
+    margin-bottom: 3rem;
+  }
+
+  .destaques-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #B91C1C;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+  .destaques-label::before { content: '●'; font-size: 0.5rem; }
+
+  .destaques-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1A1A2E;
+    margin-bottom: 0.3rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .destaques-sub {
+    font-size: 0.82rem;
+    color: #666;
+    margin-bottom: 1.25rem;
+  }
+
+  .destaques-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 0.9rem;
+  }
+
+  .destaque-card {
+    background: #fff;
+    border: 1px solid #E8E8F0;
+    border-left: 4px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+  .destaque-card:hover {
+    box-shadow: 0 4px 18px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+  }
+
+  .dc-cat {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .dc-headline {
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.35;
+  }
+  .dc-context {
+    font-size: 0.77rem;
+    color: #666;
+    line-height: 1.45;
+    flex: 1;
+  }
+  .dc-valor {
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: 'DM Mono', monospace;
+    margin-top: 0.3rem;
+  }
+  .dc-fonte {
+    font-size: 0.65rem;
+    color: #aaa;
+    margin-top: 0.1rem;
+  }
+
+  /* color themes */
+  .dc-entret  { border-left-color: #7C3AED; }
+  .dc-entret  .dc-cat { color: #7C3AED; }
+  .dc-entret  .dc-valor { color: #7C3AED; }
+
+  .dc-veiculo { border-left-color: #1D4ED8; }
+  .dc-veiculo .dc-cat { color: #1D4ED8; }
+  .dc-veiculo .dc-valor { color: #1D4ED8; }
+
+  .dc-obras   { border-left-color: #D97706; }
+  .dc-obras   .dc-cat { color: #D97706; }
+  .dc-obras   .dc-valor { color: #D97706; }
+
+  .dc-viagem  { border-left-color: #0891B2; }
+  .dc-viagem  .dc-cat { color: #0891B2; }
+  .dc-viagem  .dc-valor { color: #0891B2; }
+
+  .dc-contrat { border-left-color: #059669; }
+  .dc-contrat .dc-cat { color: #059669; }
+  .dc-contrat .dc-valor { color: #059669; }
+
+  .dc-salario { border-left-color: #DB2777; }
+  .dc-salario .dc-cat { color: #DB2777; }
+  .dc-salario .dc-valor { color: #DB2777; }
+
+  @media (max-width: 640px) {
+    .destaques-grid { grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .dc-valor { font-size: 1.1rem; }
+    .dc-headline { font-size: 0.88rem; }
+  }
+  @media (max-width: 380px) {
+    .destaques-grid { grid-template-columns: 1fr; }
+  }
+
   /* ── DIÁRIAS E VIAGENS ────────────────────────────── */
   .diarias-section { margin-top: 2.5rem; }
 
@@ -1338,6 +1461,97 @@
 
 <!-- MAIN -->
 <main class="main">
+
+  <!-- ── DESTAQUES ─────────────────────────────────── -->
+  <section class="destaques-section fade-in fade-in-1">
+    <div class="destaques-label">Radar de gastos</div>
+    <h2 class="destaques-title">O que os dados revelam</h2>
+    <p class="destaques-sub">Gastos que chamaram atenção nos dados oficiais de 2025–2026. Clique em qualquer seção abaixo para ver o detalhamento completo.</p>
+
+    <div class="destaques-grid">
+
+      <div class="destaque-card dc-entret">
+        <div class="dc-cat">Entretenimento</div>
+        <div class="dc-headline">Show da Sandy pago pela prefeitura no Dia dos Namorados</div>
+        <div class="dc-context">Contratação da artista para o 3º Divinofolia (14 a 17 de fevereiro de 2026), festa municipal realizada na cidade.</div>
+        <div class="dc-valor">R$ 60.000</div>
+        <div class="dc-fonte">Empenho · SMM Produções Ltda · fev/2026</div>
+      </div>
+
+      <div class="destaque-card dc-entret">
+        <div class="dc-cat">Entretenimento</div>
+        <div class="dc-headline">Sistema de som de grande porte alugado para shows nacionais</div>
+        <div class="dc-context">48 canais digitais, 24 caixas de subgrave e estrutura completa para shows com artistas de reconhecimento nacional.</div>
+        <div class="dc-valor">R$ 49.404</div>
+        <div class="dc-fonte">Empenho · Alexandre Turquetti Lopes ME · 2026</div>
+      </div>
+
+      <div class="destaque-card dc-veiculo">
+        <div class="dc-cat">Veículos</div>
+        <div class="dc-headline">Dois carros zero km comprados pela prefeitura em 2026</div>
+        <div class="dc-context">Dois hatchbacks zero km, modelo 2026, com câmera de ré, assistente de frenagem e seis airbags cada um.</div>
+        <div class="dc-valor">R$ 386.400</div>
+        <div class="dc-fonte">Empenho · Comercial Germânica Ltda · 2026</div>
+      </div>
+
+      <div class="destaque-card dc-obras">
+        <div class="dc-cat">Obras</div>
+        <div class="dc-headline">Dois palcos multiuso construídos para eventos turísticos</div>
+        <div class="dc-context">Empenhos de 2025 liquidados em 2026. Destinados à realização de eventos culturais e turísticos no município.</div>
+        <div class="dc-valor">R$ 332.488</div>
+        <div class="dc-fonte">Restos a Pagar · VP Engenharia e Construções · 2025→2026</div>
+      </div>
+
+      <div class="destaque-card dc-obras">
+        <div class="dc-cat">Obras / Lazer</div>
+        <div class="dc-headline">Reforma de área de lazer no bairro Nova Divinolândia</div>
+        <div class="dc-context">Reforma e ampliação da praça na Rua Dezesseis, com recursos de convênio estadual (SGRI PRC 2024-00518).</div>
+        <div class="dc-valor">R$ 159.915</div>
+        <div class="dc-fonte">Empenho · Realizze Construções e Arquitetura · 2026</div>
+      </div>
+
+      <div class="destaque-card dc-contrat">
+        <div class="dc-cat">Contrato / Consultoria</div>
+        <div class="dc-headline">Instituto contratado duas vezes para criar o Código Tributário</div>
+        <div class="dc-context">Mesma empresa (INEPA) recebeu dois empenhos idênticos de R$56.000 para elaboração do novo Código Tributário municipal.</div>
+        <div class="dc-valor">R$ 112.000</div>
+        <div class="dc-fonte">Empenhos · Instituto Nac. Esp. em Pesquisa e Apoio · 2026</div>
+      </div>
+
+      <div class="destaque-card dc-viagem">
+        <div class="dc-cat">Viagens</div>
+        <div class="dc-headline">Secretário Administrativo fez 3 viagens pagas em 2026</div>
+        <div class="dc-context">Cleberson Corrêa recebeu adiantamentos de R$4.500, R$1.000 e R$1.000 — o maior número de viagens individuais no período.</div>
+        <div class="dc-valor">R$ 6.500</div>
+        <div class="dc-fonte">Adiantamentos de Viagem · Secretaria de Administração · 2026</div>
+      </div>
+
+      <div class="destaque-card dc-viagem">
+        <div class="dc-cat">Viagens / Câmara</div>
+        <div class="dc-headline">Hospedagem de 2 vereadores por 3 noites em hotel em Brasília</div>
+        <div class="dc-context">Hotel Grand Bittar, de 23 a 26 de fevereiro. Finalidade: "atividade parlamentar visando captação de recursos em ministérios".</div>
+        <div class="dc-valor">R$ 1.650</div>
+        <div class="dc-fonte">Empenho · Hélio Henrique Silva · Câmara Municipal · fev/2026</div>
+      </div>
+
+      <div class="destaque-card dc-viagem">
+        <div class="dc-cat">Viagens / Câmara</div>
+        <div class="dc-headline">Vereadora enviada a Belo Horizonte para curso sobre CPIs Municipais</div>
+        <div class="dc-context">Ana Paula Diodo de Oliveira participou de curso sobre "CPIs Municipais e Comissões Processantes" entre 22 e 24 de abril.</div>
+        <div class="dc-valor">R$ 4.000</div>
+        <div class="dc-fonte">Adiantamento de Viagem · Câmara Municipal · abr/2026</div>
+      </div>
+
+      <div class="destaque-card dc-salario">
+        <div class="dc-cat">Salários</div>
+        <div class="dc-headline">Dentista recebeu a maior remuneração do município em 2026</div>
+        <div class="dc-context">Evandro Antonio de Almeida, dentista, liderou o ranking com R$22.655 — valor referente à rescisão contratual, não ao salário mensal regular.</div>
+        <div class="dc-valor">R$ 22.655</div>
+        <div class="dc-fonte">Folha de Pagamento · Rescisão · Portal de Transparência · 2026</div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- INFO CARDS -->
   <div class="info-grid fade-in fade-in-1">
