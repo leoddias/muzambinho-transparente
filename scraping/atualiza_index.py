@@ -65,6 +65,12 @@ def main() -> None:
     licitacoes = carrega("licitacoes")
     kpis = carrega("kpis")
     radar = carrega("radar")
+    receitas = carrega("receitas")
+    transferencias = carrega("transferencias")
+    comissionados = carrega("comissionados")
+    pagamentos = carrega("pagamentos")
+    subvencoes = carrega("subvencoes")
+    insights = carrega("insights")
 
     hoje = date.today()
     data_geracao = f"{hoje.day} de {MESES_PT[hoje.month]} de {hoje.year}"
@@ -82,9 +88,13 @@ def main() -> None:
         data_geracao=data_geracao,
         periodo=periodo,
         brasao_uri=brasao_uri,
+        kpi_arrecadado=fmt_brl_compacto(kpis.get("total_arrecadado", 0)),
+        kpi_qtd_receitas=f"{kpis.get('qtd_receitas', 0):,}".replace(",", "."),
         kpi_empenhado=fmt_brl_compacto(kpis["total_empenhado"]),
         kpi_qtd_empenhos=f"{kpis['total_empenhos']:,}".replace(",", "."),
         kpi_qtd_credores=kpis["total_credores"],
+        kpi_pago=fmt_brl_compacto(kpis.get("total_pago", 0)),
+        kpi_qtd_pagamentos=f"{kpis.get('qtd_pagamentos', 0):,}".replace(",", "."),
         kpi_folha=fmt_brl_compacto(kpis["folha_base_mensal"]),
         kpi_qtd_servidores_ativos=kpis["servidores_ativos"],
         kpi_qtd_servidores_total=kpis["total_servidores"],
@@ -96,6 +106,7 @@ def main() -> None:
         kpi_qtd_dispensas=kpis.get("qtd_dispensas", 0),
         kpi_qtd_atas=kpis.get("qtd_atas", 0),
         kpi_qtd_compras=qtd_compras,
+        kpi_qtd_comissionados=kpis.get("qtd_comissionados", 0),
         json_credores=js(credores),
         json_empenhos=js(empenhos),
         json_servidores=js(servidores),
@@ -103,6 +114,12 @@ def main() -> None:
         json_licitacoes=js(licitacoes),
         json_kpis=js(kpis),
         json_radar=js(radar),
+        json_receitas=js(receitas),
+        json_transferencias=js(transferencias),
+        json_comissionados=js(comissionados),
+        json_pagamentos=js(pagamentos),
+        json_subvencoes=js(subvencoes),
+        json_insights=js(insights),
         qtd_radar=len(radar),
     )
 
@@ -227,8 +244,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .stats {{
     background: var(--surface-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   }}
-  .stats .wrap {{ max-width: 1180px; margin: 0 auto; padding: 0.9rem 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 1.5rem; }}
-  @media (min-width: 768px) {{ .stats .wrap {{ grid-template-columns: repeat(4, 1fr); }} }}
+  .stats .wrap {{ max-width: 1180px; margin: 0 auto; padding: 0.9rem 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 1.2rem; }}
+  @media (min-width: 600px) {{ .stats .wrap {{ grid-template-columns: repeat(3, 1fr); }} }}
+  @media (min-width: 980px) {{ .stats .wrap {{ grid-template-columns: repeat(6, 1fr); }} }}
   .stat .label {{ display: block; }}
   .stat .v {{ font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 3vw, 1.7rem); font-weight: 700; color: var(--ink); line-height: 1.1; }}
   .stat .desc {{ font-size: 0.78rem; color: var(--ink-mute); margin-top: 0.15rem; }}
@@ -317,6 +335,60 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     table.t {{ font-size: 0.85rem; }}
     table.t thead th, table.t tbody td {{ padding: 0.55rem 0.6rem; }}
   }}
+
+  /* INSIGHTS - blocos visuais (Balança Fiscal, Origem, Pirâmide, Comissionados) */
+  .insights-grid {{
+    display: grid; gap: 1rem; grid-template-columns: 1fr; margin-top: 1.25rem;
+  }}
+  @media (min-width: 820px) {{ .insights-grid {{ grid-template-columns: repeat(2, 1fr); }} }}
+  .insight-card {{
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.3rem;
+    display: flex; flex-direction: column; gap: 0.9rem;
+  }}
+  .insight-card .head {{ display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }}
+  .insight-card h3 {{
+    font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--ink); margin: 0;
+  }}
+  .insight-card .hint {{ font-size: 0.78rem; color: var(--ink-mute); }}
+  .insight-card .lead {{ font-size: 0.88rem; color: var(--ink-soft); margin: 0; }}
+
+  /* Balança Fiscal - 3 colunas Arrecadado / Empenhado / Pago */
+  .balanca {{
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0.3rem 0;
+  }}
+  .balanca .item {{ text-align: center; padding: 0.7rem 0.4rem; background: var(--surface-2); border-radius: 8px; }}
+  .balanca .item .lbl {{ font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }}
+  .balanca .item .v {{ font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--ink); margin-top: 0.2rem; }}
+  .balanca .item.arr {{ border-bottom: 3px solid var(--moss); }}
+  .balanca .item.emp {{ border-bottom: 3px solid var(--clay); }}
+  .balanca .item.pgo {{ border-bottom: 3px solid var(--gold); }}
+  .balanca-bar {{ height: 16px; border-radius: 8px; background: var(--surface-2); position: relative; overflow: hidden; margin-top: 0.6rem; }}
+  .balanca-bar .seg {{ position: absolute; top: 0; bottom: 0; }}
+  .balanca-bar .seg.empenhado {{ background: linear-gradient(90deg, rgba(229,149,104,0.6), rgba(229,149,104,0.85)); }}
+  .balanca-bar .seg.pago {{ background: linear-gradient(90deg, var(--gold), var(--clay)); }}
+  .balanca-legenda {{ display: flex; gap: 0.8rem; font-size: 0.72rem; color: var(--ink-mute); margin-top: 0.3rem; flex-wrap: wrap; }}
+  .balanca-legenda i {{ display: inline-block; width: 10px; height: 10px; margin-right: 0.3rem; border-radius: 2px; vertical-align: middle; }}
+
+  /* Barras horizontais (origem do dinheiro / pirâmide / comissionados) */
+  .hbar-list {{ display: flex; flex-direction: column; gap: 0.4rem; }}
+  .hbar {{ display: grid; grid-template-columns: 1fr auto; gap: 0.35rem 0.8rem; align-items: center; }}
+  .hbar .nome {{ font-size: 0.85rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+  .hbar .val {{ font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--gold); text-align: right; white-space: nowrap; }}
+  .hbar .track {{
+    grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--bar-bg); overflow: hidden; position: relative;
+  }}
+  .hbar .track i {{ position: absolute; left: 0; top: 0; bottom: 0; background: var(--bar-fg); border-radius: 999px; min-width: 4px; }}
+
+  /* Comparativo donut/proporção (comissionados vs efetivos) */
+  .compara-quadro {{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; align-items: center;
+  }}
+  .compara-quadro .num {{ text-align: center; padding: 0.7rem; background: var(--surface-2); border-radius: 10px; }}
+  .compara-quadro .num .v {{ font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--ink); line-height: 1; }}
+  .compara-quadro .num .lbl {{ font-size: 0.78rem; color: var(--ink-mute); margin-top: 0.3rem; }}
+  .compara-quadro .num.destaque {{ border: 1px solid var(--gold); background: rgba(212,169,104,0.08); }}
+  .compara-quadro .num.destaque .v {{ color: var(--gold); }}
+  .compara-bar {{ grid-column: 1 / -1; margin-top: 0.4rem; }}
 
   /* RADAR DE GASTOS - cards de anomalia */
   .radar-intro {{ display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.4rem; }}
@@ -446,19 +518,25 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
 <div class="stats" role="region" aria-label="Indicadores principais">
   <div class="wrap">
+    <div class="stat"><span class="label">Arrecadado</span><div class="v">{kpi_arrecadado}</div><div class="desc">{kpi_qtd_receitas} lançamentos de receita</div></div>
     <div class="stat"><span class="label">Empenhado</span><div class="v">{kpi_empenhado}</div><div class="desc">{kpi_qtd_empenhos} empenhos a {kpi_qtd_credores} credores</div></div>
-    <div class="stat"><span class="label">Folha base</span><div class="v">{kpi_folha}</div><div class="desc">{kpi_qtd_servidores_ativos} ativos de {kpi_qtd_servidores_total} cadastrados</div></div>
+    <div class="stat"><span class="label">Pago efetivo</span><div class="v">{kpi_pago}</div><div class="desc">{kpi_qtd_pagamentos} pagamentos liquidados</div></div>
+    <div class="stat"><span class="label">Folha base</span><div class="v">{kpi_folha}</div><div class="desc">{kpi_qtd_servidores_ativos} ativos · {kpi_qtd_comissionados} comissionados</div></div>
     <div class="stat"><span class="label">Diárias</span><div class="v">{kpi_diarias}</div><div class="desc">{kpi_qtd_diarias} concedidas no exercício</div></div>
-    <div class="stat"><span class="label">Contratos</span><div class="v">{kpi_contratos}</div><div class="desc">{kpi_qtd_contratos} contratos · {kpi_qtd_licitacoes} licitações</div></div>
+    <div class="stat"><span class="label">Compras</span><div class="v">{kpi_qtd_compras}</div><div class="desc">{kpi_qtd_licitacoes}L · {kpi_qtd_dispensas}D · {kpi_qtd_contratos}C · {kpi_qtd_atas}A</div></div>
   </div>
 </div>
 
 <nav class="site-nav" aria-label="Navegação entre seções">
   <div class="wrap">
+    <a href="#insights">Visão geral</a>
     <a href="#radar">Radar <span class="n">{qtd_radar}</span></a>
+    <a href="#receitas">Receitas <span class="n">{kpi_qtd_receitas}</span></a>
     <a href="#credores">Credores <span class="n">{kpi_qtd_credores}</span></a>
     <a href="#empenhos">Empenhos <span class="n">{kpi_qtd_empenhos}</span></a>
+    <a href="#pagamentos">Pagamentos <span class="n">{kpi_qtd_pagamentos}</span></a>
     <a href="#servidores">Servidores <span class="n">{kpi_qtd_servidores_total}</span></a>
+    <a href="#comissionados">Comissionados <span class="n">{kpi_qtd_comissionados}</span></a>
     <a href="#diarias">Diárias <span class="n">{kpi_qtd_diarias}</span></a>
     <a href="#licitacoes">Compras <span class="n">{kpi_qtd_compras}</span></a>
   </div>
@@ -469,6 +547,73 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <div class="txt">
     <span class="label">Como ler este portal</span>
     <p>Para onde vai o dinheiro público de Muzambinho? Este portal organiza, em uma única página, <strong>todos os dados</strong> que a Prefeitura já publica de forma fragmentada no PortalTP oficial — cada empenho, cada credor, cada servidor, cada diária, cada contrato do exercício de 2026. Nada está agregado, resumido ou filtrado; use as buscas e ordenações para explorar.</p>
+  </div>
+</section>
+
+<section id="insights">
+  <h2>Visão geral</h2>
+  <p class="lead">Quatro perspectivas que dão contexto aos números detalhados nas seções seguintes — balança fiscal, origem da receita, distribuição por área de governo e composição do quadro de pessoal.</p>
+  <div class="insights-grid">
+    <div class="insight-card">
+      <div class="head">
+        <h3>Balança fiscal</h3>
+        <span class="hint">Arrecadado · Empenhado · Pago</span>
+      </div>
+      <p class="lead" id="balancaLead"></p>
+      <div class="balanca">
+        <div class="item arr"><div class="lbl">Arrecadado</div><div class="v" id="balArrec">—</div></div>
+        <div class="item emp"><div class="lbl">Empenhado</div><div class="v" id="balEmp">—</div></div>
+        <div class="item pgo"><div class="lbl">Pago</div><div class="v" id="balPago">—</div></div>
+      </div>
+      <div class="balanca-bar" id="balBar"></div>
+      <div class="balanca-legenda">
+        <span><i style="background: linear-gradient(90deg, rgba(229,149,104,0.6), rgba(229,149,104,0.85))"></i>Empenhado (compromisso)</span>
+        <span><i style="background: linear-gradient(90deg, var(--gold), var(--clay))"></i>Pago (saída de caixa)</span>
+        <span>Em relação ao arrecadado no período</span>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="head">
+        <h3>De onde vem o dinheiro</h3>
+        <span class="hint">Receita por categoria</span>
+      </div>
+      <p class="lead">Quanto da arrecadação é tributo próprio (IPTU, ISS) vs transferências da União/Estado.</p>
+      <div class="hbar-list" id="origemList"></div>
+    </div>
+
+    <div class="insight-card">
+      <div class="head">
+        <h3>Pirâmide do orçamento</h3>
+        <span class="hint">Gasto por área de governo</span>
+      </div>
+      <p class="lead">Distribuição das despesas empenhadas por função (Educação, Saúde, Administração, etc).</p>
+      <div class="hbar-list" id="piramideList"></div>
+    </div>
+
+    <div class="insight-card">
+      <div class="head">
+        <h3>Comissionados vs efetivos</h3>
+        <span class="hint">Quadro de pessoal</span>
+      </div>
+      <p class="lead" id="comissLead"></p>
+      <div class="compara-quadro">
+        <div class="num"><div class="v" id="comQtd">—</div><div class="lbl">comissionados</div></div>
+        <div class="num destaque"><div class="v" id="comPctCusto">—</div><div class="lbl">do custo da folha base</div></div>
+        <div class="compara-bar">
+          <div class="hbar">
+            <span class="nome">Comissionados (% custo)</span>
+            <span class="val" id="comPctCustoVal">—</span>
+            <div class="track"><i id="comBarCusto"></i></div>
+          </div>
+          <div class="hbar" style="margin-top: 0.6rem">
+            <span class="nome">Comissionados (% quadro)</span>
+            <span class="val" id="comPctQuadroVal">—</span>
+            <div class="track"><i id="comBarQuadro"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -532,6 +677,48 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <button id="empMore" class="more-btn">Mostrar mais</button>
 </section>
 
+<section id="pagamentos">
+  <h2>Pagamentos efetivos</h2>
+  <p class="lead">Todos os <span id="pagTotal"></span> pagamentos que efetivamente saíram do cofre da Prefeitura. Pagamento é o terceiro e último estágio da despesa (empenho → liquidação → pagamento). Cruzamento com empenhos mostra quanto do que foi prometido virou saída real.</p>
+  <div class="toolbar">
+    <input id="pagSearch" type="search" placeholder="Buscar por favorecido, número, histórico..." aria-label="Buscar pagamento">
+    <select id="pagSort" aria-label="Ordenar pagamentos">
+      <option value="valor_desc">Maior valor</option>
+      <option value="data_desc">Mais recente</option>
+      <option value="data_asc">Mais antigo</option>
+      <option value="favorecido">Favorecido (A-Z)</option>
+    </select>
+    <span class="count" id="pagCount"></span>
+  </div>
+  <div class="cards" id="pagCards"></div>
+  <button id="pagMore" class="more-btn">Mostrar mais</button>
+</section>
+
+<section id="receitas">
+  <h2>Receitas e arrecadação</h2>
+  <p class="lead">De onde vem o dinheiro público — <span id="recTotal"></span> lançamentos de receita realizada em 2026, além de transferências formais e subvenções concedidas pela Prefeitura.</p>
+  <div class="tabs">
+    <button id="tabRec" class="active" onclick="switchRecTab('rec')">Receitas <span class="n" id="tabRecN"></span></button>
+    <button id="tabTra" onclick="switchRecTab('tra')">Transferências <span class="n" id="tabTraN"></span></button>
+    <button id="tabSub" onclick="switchRecTab('sub')">Subvenções (concedidas) <span class="n" id="tabSubN"></span></button>
+  </div>
+  <div class="chips-group" id="recCatRow">
+    <div class="row-label" id="recCatLabel">Categoria</div>
+    <div class="chips" id="recCatChips"></div>
+  </div>
+  <div class="toolbar">
+    <input id="recSearch" type="search" placeholder="Buscar..." aria-label="Buscar">
+    <select id="recSort" aria-label="Ordenar">
+      <option value="valor_desc">Maior valor</option>
+      <option value="data_desc">Mais recente</option>
+      <option value="alfabetico">A-Z</option>
+    </select>
+    <span class="count" id="recCount"></span>
+  </div>
+  <div class="cards" id="recCards"></div>
+  <button id="recMore" class="more-btn">Mostrar mais</button>
+</section>
+
 <section id="servidores">
   <h2>Servidores</h2>
   <p class="lead">Todos os <span id="srvTotal"></span> servidores cadastrados na folha — efetivos, comissionados, contratados, ativos, em licença ou afastados.</p>
@@ -559,6 +746,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </div>
   <div class="cards" id="srvCards"></div>
   <button id="srvMore" class="more-btn">Mostrar mais</button>
+</section>
+
+<section id="comissionados">
+  <h2>Cargos comissionados</h2>
+  <p class="lead">Os <span id="comTotal"></span> cargos de confiança (livre nomeação do Prefeito) — distintos dos servidores efetivos que ingressaram por concurso. Listamos todos com cargo, lotação, data de admissão/demissão e salário base.</p>
+  <div class="note">
+    <strong>Por que destacar?</strong> Cargos comissionados são instrumentos legítimos de gestão (assessores, secretários, chefes de gabinete), mas o controle social do "cabide de empregos" é uma demanda histórica da transparência cidadã. Aqui você compara com o restante do quadro.
+  </div>
+  <div class="toolbar">
+    <input id="comSearch" type="search" placeholder="Buscar por nome ou cargo..." aria-label="Buscar comissionado">
+    <select id="comSort" aria-label="Ordenar comissionados">
+      <option value="salario_desc">Maior salário base</option>
+      <option value="salario_asc">Menor salário base</option>
+      <option value="nome">Nome (A-Z)</option>
+      <option value="admissao_desc">Admissão mais recente</option>
+      <option value="admissao_asc">Admissão mais antiga</option>
+    </select>
+    <span class="count" id="comCount"></span>
+  </div>
+  <div class="cards" id="comCards"></div>
+  <button id="comMore" class="more-btn">Mostrar mais</button>
 </section>
 
 <section id="diarias">
@@ -648,6 +856,12 @@ const DIARIAS    = {json_diarias};
 const LICITACOES = {json_licitacoes};
 const KPIS       = {json_kpis};
 const RADAR      = {json_radar};
+const RECEITAS   = {json_receitas};
+const TRANSFER   = {json_transferencias};
+const COMISS     = {json_comissionados};
+const PAGAMENTOS = {json_pagamentos};
+const SUBVENCOES = {json_subvencoes};
+const INSIGHTS   = {json_insights};
 
 const PAGE_SIZE = 60;
 
@@ -1082,6 +1296,260 @@ $('#diaTotal').textContent  = DIARIAS.length.toLocaleString('pt-BR');
 $('#licTotalL').textContent = LICITACOES.licitacoes.length;
 $('#licTotalC').textContent = LICITACOES.contratos.length;
 
+// =========== INSIGHTS (Balança, Origem, Pirâmide, Comissionados) ===========
+function fmtBRLcompacto(v) {{
+  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(2).replace('.', ',') + 'M';
+  if (v >= 1e3) return 'R$ ' + (v/1e3).toFixed(1).replace('.', ',') + 'K';
+  return 'R$ ' + v.toFixed(2).replace('.', ',');
+}}
+
+function renderInsights() {{
+  // Balança Fiscal
+  const bal = INSIGHTS.balanca || {{}};
+  $('#balArrec').textContent = fmtBRLcompacto(bal.arrecadado || 0);
+  $('#balEmp').textContent   = fmtBRLcompacto(bal.empenhado_liquido || 0);
+  $('#balPago').textContent  = fmtBRLcompacto(bal.pago || 0);
+
+  const arr = bal.arrecadado || 1;
+  const empPct = Math.min(100, (bal.empenhado_liquido || 0) / arr * 100);
+  const pagoPct = Math.min(100, (bal.pago || 0) / arr * 100);
+  $('#balBar').innerHTML = `
+    <div class="seg empenhado" style="left:0; width:${{empPct.toFixed(1)}}%"></div>
+    <div class="seg pago" style="left:0; width:${{pagoPct.toFixed(1)}}%"></div>
+  `;
+  const deficit = (bal.empenhado_liquido || 0) - (bal.arrecadado || 0);
+  const sinal = deficit > 0 ? `<strong style="color:var(--danger)">déficit de compromisso de ${{esc(fmtBRLcompacto(deficit))}}</strong>` : `<strong style="color:var(--moss)">superávit de ${{esc(fmtBRLcompacto(-deficit))}}</strong>`;
+  $('#balancaLead').innerHTML = `Em 2026, a Prefeitura arrecadou ${{esc(fmtBRLcompacto(arr))}} e já empenhou ${{esc(fmtBRLcompacto(bal.empenhado_liquido || 0))}} — ${{sinal}}. Só ${{esc(fmtBRLcompacto(bal.pago || 0))}} virou pagamento efetivo (${{pagoPct.toFixed(0)}}% do arrecadado).`;
+
+  // Origem do dinheiro
+  const origem = INSIGHTS.origem_categoria || {{}};
+  const origemEntries = Object.entries(origem).sort((a, b) => b[1] - a[1]);
+  const maxOrigem = origemEntries[0]?.[1] || 1;
+  $('#origemList').innerHTML = origemEntries.map(([nome, v]) => {{
+    const pct = v / maxOrigem * 100;
+    return `<div class="hbar">
+      <span class="nome">${{esc(nome)}}</span>
+      <span class="val">${{esc(fmtBRLcompacto(v))}}</span>
+      <div class="track"><i style="width:${{pct.toFixed(1)}}%"></i></div>
+    </div>`;
+  }}).join('') || '<div class="empty">Sem receitas registradas.</div>';
+
+  // Pirâmide do orçamento (despesa por função)
+  const piram = INSIGHTS.piramide_funcao || {{}};
+  const piramEntries = Object.entries(piram).sort((a, b) => b[1] - a[1]);
+  const totalPiram = piramEntries.reduce((s, [_, v]) => s + v, 0) || 1;
+  const maxPiram = piramEntries[0]?.[1] || 1;
+  $('#piramideList').innerHTML = piramEntries.map(([nome, v]) => {{
+    const pct = v / maxPiram * 100;
+    const pctTotal = v / totalPiram * 100;
+    return `<div class="hbar">
+      <span class="nome">${{esc(nome)}}</span>
+      <span class="val">${{esc(fmtBRLcompacto(v))}} · ${{pctTotal.toFixed(1)}}%</span>
+      <div class="track"><i style="width:${{pct.toFixed(1)}}%"></i></div>
+    </div>`;
+  }}).join('') || '<div class="empty">Sem dados.</div>';
+
+  // Comissionados vs efetivos
+  const c = INSIGHTS.comissionados || {{}};
+  $('#comQtd').textContent = c.qtd || 0;
+  $('#comPctCusto').textContent = (c.pct_custo || 0).toFixed(1) + '%';
+  $('#comPctCustoVal').textContent = (c.pct_custo || 0).toFixed(1) + '%';
+  $('#comPctQuadroVal').textContent = (c.pct_quadro || 0).toFixed(1) + '%';
+  $('#comBarCusto').style.width = Math.min(100, (c.pct_custo || 0) * 2) + '%';  // amplifica visual
+  $('#comBarQuadro').style.width = Math.min(100, (c.pct_quadro || 0) * 2) + '%';
+  const salarioMedio = c.qtd > 0 ? c.custo_mensal / c.qtd : 0;
+  $('#comissLead').innerHTML = `${{c.qtd || 0}} cargos de confiança (${{(c.pct_quadro || 0).toFixed(1)}}% do quadro de ${{c.qtd_total_quadro || 0}} servidores) custam ${{esc(fmtBRLcompacto(c.custo_mensal || 0))}}/mês — ${{(c.pct_custo || 0).toFixed(1)}}% da folha base. Salário médio: ${{esc(fmtBRLcompacto(salarioMedio))}}.`;
+}}
+
+// =========== PAGAMENTOS ===========
+function renderPagamentos() {{
+  const q = $('#pagSearch').value.trim().toLowerCase();
+  const sort = $('#pagSort').value;
+  const sorters = {{
+    valor_desc:  (a, b) => b.valor_num - a.valor_num,
+    data_desc:   (a, b) => parseDate(b.data) - parseDate(a.data),
+    data_asc:    (a, b) => parseDate(a.data) - parseDate(b.data),
+    favorecido:  (a, b) => a.favorecido.localeCompare(b.favorecido, 'pt-BR'),
+  }};
+  paginatedRender({{
+    key: 'pag', dataset: PAGAMENTOS,
+    filterFn: p => !q || (p.favorecido + ' ' + p.pagamento + ' ' + p.empenho + ' ' + p.historico).toLowerCase().includes(q),
+    sortFn: sorters[sort],
+    renderItem: p => `<div class="card">
+      <div class="top">
+        <span class="date">${{esc(p.data)}}  ·  pag. ${{esc(p.pagamento)}}</span>
+        <span class="val">${{esc(p.valor)}}</span>
+      </div>
+      <div class="fav">${{esc(p.favorecido)}}</div>
+      <div class="meta">
+        ${{p.empenho ? `<span>emp. ${{esc(p.empenho)}}</span>` : ''}}
+        ${{p.funcao ? `<span>${{esc(p.funcao)}}</span>` : ''}}
+        ${{p.tipo ? `<span>${{esc(p.tipo)}}</span>` : ''}}
+      </div>
+      <div class="desc">${{esc(p.historico)}}</div>
+      ${{p.elemento ? `<span class="tag">${{esc(p.elemento).slice(0,80)}}</span>` : ''}}
+    </div>`,
+    container: '#pagCards', moreBtn: '#pagMore', countEl: '#pagCount',
+  }});
+}}
+
+// =========== RECEITAS / TRANSFERÊNCIAS / SUBVENÇÕES (tabs) ===========
+let recTab = 'rec';
+let recCategoria = null;
+const REC_RENDERERS = {{
+  rec: {{
+    dataset: () => RECEITAS,
+    hasCat: true, catKey: r => r.categoria,
+    search: r => (r.categoria + ' ' + r.origem + ' ' + r.especie + ' ' + r.rubrica + ' ' + r.alinea + ' ' + r.subalinea).toLowerCase(),
+    sorters: {{
+      valor_desc:  (a, b) => b.realizado_num - a.realizado_num,
+      data_desc:   (a, b) => parseDate(b.data) - parseDate(a.data),
+      alfabetico:  (a, b) => (a.categoria + a.origem).localeCompare(b.categoria + b.origem, 'pt-BR'),
+    }},
+    render: r => {{
+      const nome = [r.categoria, r.origem, r.especie, r.rubrica, r.alinea, r.subalinea].filter(Boolean).slice(-2).join(' › ');
+      const pct = r.atualizado_num > 0 ? (r.realizado_num / r.atualizado_num * 100) : 0;
+      return `<div class="card">
+        <div class="top">
+          <span class="date">${{esc(r.data)}}</span>
+          <span class="val">${{esc(r.realizado || 'R$ 0,00')}}</span>
+        </div>
+        <div class="fav">${{esc(nome || r.categoria || '—')}}</div>
+        <div class="meta">
+          ${{r.categoria ? `<span>${{esc(r.categoria)}}</span>` : ''}}
+          <span>Previsto: ${{esc(r.atualizado || '—')}}</span>
+          ${{r.atualizado_num > 0 ? `<span>${{pct.toFixed(1)}}% executado</span>` : ''}}
+        </div>
+        ${{r.plano_conta ? `<span class="tag">${{esc(r.plano_conta).slice(0,80)}}</span>` : ''}}
+      </div>`;
+    }},
+  }},
+  tra: {{
+    dataset: () => TRANSFER,
+    hasCat: false,
+    search: t => (t.concedente + ' ' + t.beneficiario + ' ' + t.objeto + ' ' + t.cnpj).toLowerCase(),
+    sorters: {{
+      valor_desc:  (a, b) => b.valor_num - a.valor_num,
+      data_desc:   (a, b) => parseDate(b.data) - parseDate(a.data),
+      alfabetico:  (a, b) => a.concedente.localeCompare(b.concedente, 'pt-BR'),
+    }},
+    render: t => `<div class="card">
+      <div class="top">
+        <span class="date">${{esc(t.data)}}</span>
+        <span class="val">${{esc(t.valor)}}</span>
+      </div>
+      <div class="fav">${{esc(t.concedente)}} → ${{esc(t.beneficiario)}}</div>
+      <div class="desc">${{esc(t.objeto)}}</div>
+      <div class="meta">
+        ${{t.cnpj ? `<span class="mono">${{esc(t.cnpj)}}</span>` : ''}}
+        ${{t.vigencia_inicial ? `<span>vigência ${{esc(t.vigencia_inicial)}}${{t.vigencia_final ? ' a ' + esc(t.vigencia_final) : ''}}</span>` : ''}}
+        ${{t.contrapartida_num > 0 ? `<span>contrapartida: ${{esc(t.contrapartida)}}</span>` : ''}}
+      </div>
+    </div>`,
+  }},
+  sub: {{
+    dataset: () => SUBVENCOES,
+    hasCat: false,
+    search: s => (s.beneficiario + ' ' + s.historico + ' ' + s.cnpj).toLowerCase(),
+    sorters: {{
+      valor_desc:  (a, b) => b.valor_num - a.valor_num,
+      data_desc:   (a, b) => parseDate(b.data) - parseDate(a.data),
+      alfabetico:  (a, b) => a.beneficiario.localeCompare(b.beneficiario, 'pt-BR'),
+    }},
+    render: s => `<div class="card">
+      <div class="top">
+        <span class="date">${{esc(s.data)}}</span>
+        <span class="val">${{esc(s.valor)}}</span>
+      </div>
+      <div class="fav">${{esc(s.beneficiario)}}</div>
+      <div class="meta">
+        ${{s.cnpj ? `<span class="mono">${{esc(s.cnpj)}}</span>` : ''}}
+        ${{s.processo ? `<span>Proc. ${{esc(s.processo)}}</span>` : ''}}
+      </div>
+      <div class="desc">${{esc(s.historico)}}</div>
+    </div>`,
+  }},
+}};
+
+function switchRecTab(t) {{
+  recTab = t; recCategoria = null;
+  ['rec', 'tra', 'sub'].forEach(k => {{
+    $('#tab' + k.charAt(0).toUpperCase() + k.slice(1)).classList.toggle('active', t === k);
+  }});
+  const cfg = REC_RENDERERS[t];
+  $('#recCatRow').style.display = cfg.hasCat ? 'flex' : 'none';
+  renderRecChips();
+  renderReceitas();
+}}
+function renderRecChips() {{
+  const cfg = REC_RENDERERS[recTab];
+  if (!cfg.hasCat) return;
+  const data = cfg.dataset();
+  const counts = {{}};
+  data.forEach(item => {{
+    const c = cfg.catKey(item);
+    if (c) counts[c] = (counts[c] || 0) + 1;
+  }});
+  const cats = Object.keys(counts).sort();
+  $('#recCatChips').innerHTML =
+    `<button class="chip ${{!recCategoria ? 'active' : ''}}" onclick="setRecCat(null)">Todas (${{data.length}})</button>` +
+    cats.map(c => `<button class="chip ${{recCategoria === c ? 'active' : ''}}" onclick="setRecCat('${{c.replace(/'/g, "&#39;")}}')">${{esc(c)}} (${{counts[c]}})</button>`).join('');
+}}
+function setRecCat(c) {{ recCategoria = c; renderRecChips(); renderReceitas(); }}
+function renderReceitas() {{
+  const q = $('#recSearch').value.trim().toLowerCase();
+  const sort = $('#recSort').value;
+  const cfg = REC_RENDERERS[recTab];
+  paginatedRender({{
+    key: 'rec', dataset: cfg.dataset(),
+    filterFn: item => {{
+      if (cfg.hasCat && recCategoria && cfg.catKey(item) !== recCategoria) return false;
+      if (q && !cfg.search(item).includes(q)) return false;
+      return true;
+    }},
+    sortFn: cfg.sorters[sort],
+    renderItem: cfg.render,
+    container: '#recCards', moreBtn: '#recMore', countEl: '#recCount',
+  }});
+}}
+
+// =========== COMISSIONADOS ===========
+function renderComissionados() {{
+  const q = $('#comSearch').value.trim().toLowerCase();
+  const sort = $('#comSort').value;
+  const sorters = {{
+    salario_desc:  (a, b) => b.salario_base_num - a.salario_base_num,
+    salario_asc:   (a, b) => a.salario_base_num - b.salario_base_num,
+    nome:          (a, b) => a.nome.localeCompare(b.nome, 'pt-BR'),
+    admissao_desc: (a, b) => parseDate(b.admissao) - parseDate(a.admissao),
+    admissao_asc:  (a, b) => parseDate(a.admissao) - parseDate(b.admissao),
+  }};
+  paginatedRender({{
+    key: 'com', dataset: COMISS,
+    filterFn: c => !q || (c.nome + ' ' + c.cargo + ' ' + c.lotacao + ' ' + c.matricula).toLowerCase().includes(q),
+    sortFn: sorters[sort],
+    renderItem: c => {{
+      const pct = Math.max(0.5, (c.salario_base_num / (KPIS.max_salario || 1)) * 100);
+      return `<div class="card">
+        <div class="top">
+          <span class="date">mat. ${{esc(c.matricula)}}</span>
+          <span class="val">${{esc(c.salario_base)}}</span>
+        </div>
+        <div class="bar" style="margin-top:-0.2rem"><i style="width:${{pct.toFixed(1)}}%"></i></div>
+        <div class="fav">${{esc(c.nome)}}</div>
+        <div class="meta">
+          <span>${{esc(c.cargo)}}</span>
+          ${{c.admissao ? `<span>desde ${{esc(c.admissao)}}</span>` : ''}}
+          ${{c.demissao ? `<span>até ${{esc(c.demissao)}}</span>` : ''}}
+        </div>
+        ${{c.lotacao ? `<div class="desc">${{esc(c.lotacao)}}</div>` : ''}}
+        <span class="tag">${{esc(c.situacao)}}</span>
+      </div>`;
+    }},
+    container: '#comCards', moreBtn: '#comMore', countEl: '#comCount',
+  }});
+}}
+
 // =========== RADAR DE GASTOS ===========
 function renderRadar() {{
   const ordem = {{ alta: 0, media: 1, baixa: 2, info: 3 }};
@@ -1098,13 +1566,55 @@ function renderRadar() {{
     </a>`).join('') || '<div class="empty">Nenhuma anomalia detectada.</div>';
 }}
 
+// Listeners + totais inline das novas seções
+$('#pagSearch').addEventListener('input', renderPagamentos);
+$('#pagSort').addEventListener('change', renderPagamentos);
+$('#pagMore').addEventListener('click', () => appendBatch('pag',
+  p => `<div class="card"><div class="top"><span class="date">${{esc(p.data)}}  ·  pag. ${{esc(p.pagamento)}}</span><span class="val">${{esc(p.valor)}}</span></div><div class="fav">${{esc(p.favorecido)}}</div><div class="meta">${{p.empenho ? `<span>emp. ${{esc(p.empenho)}}</span>` : ''}}${{p.funcao ? `<span>${{esc(p.funcao)}}</span>` : ''}}${{p.tipo ? `<span>${{esc(p.tipo)}}</span>` : ''}}</div><div class="desc">${{esc(p.historico)}}</div>${{p.elemento ? `<span class="tag">${{esc(p.elemento).slice(0,80)}}</span>` : ''}}</div>`,
+  '#pagCards', '#pagMore', '#pagCount'));
+
+$('#recSearch').addEventListener('input', renderReceitas);
+$('#recSort').addEventListener('change', renderReceitas);
+$('#recMore').addEventListener('click', () => {{
+  const cfg = REC_RENDERERS[recTab];
+  appendBatch('rec', cfg.render, '#recCards', '#recMore', '#recCount');
+}});
+
+$('#comSearch').addEventListener('input', renderComissionados);
+$('#comSort').addEventListener('change', renderComissionados);
+$('#comMore').addEventListener('click', () => appendBatch('com',
+  c => {{
+    const pct = Math.max(0.5, (c.salario_base_num / (KPIS.max_salario || 1)) * 100);
+    return `<div class="card"><div class="top"><span class="date">mat. ${{esc(c.matricula)}}</span><span class="val">${{esc(c.salario_base)}}</span></div><div class="bar" style="margin-top:-0.2rem"><i style="width:${{pct.toFixed(1)}}%"></i></div><div class="fav">${{esc(c.nome)}}</div><div class="meta"><span>${{esc(c.cargo)}}</span>${{c.admissao ? `<span>desde ${{esc(c.admissao)}}</span>` : ''}}${{c.demissao ? `<span>até ${{esc(c.demissao)}}</span>` : ''}}</div>${{c.lotacao ? `<div class="desc">${{esc(c.lotacao)}}</div>` : ''}}<span class="tag">${{esc(c.situacao)}}</span></div>`;
+  }},
+  '#comCards', '#comMore', '#comCount'));
+
+// Totais inline das novas seções
+$('#licTotalD').textContent = (LICITACOES.dispensas || []).length;
+$('#licTotalA').textContent = (LICITACOES.atas || []).length;
+$('#tabLicN').textContent   = LICITACOES.licitacoes.length;
+$('#tabDisN').textContent   = (LICITACOES.dispensas || []).length;
+$('#tabConN').textContent   = LICITACOES.contratos.length;
+$('#tabAtaN').textContent   = (LICITACOES.atas || []).length;
+$('#recTotal').textContent  = RECEITAS.length.toLocaleString('pt-BR');
+$('#pagTotal').textContent  = PAGAMENTOS.length.toLocaleString('pt-BR');
+$('#comTotal').textContent  = COMISS.length.toLocaleString('pt-BR');
+$('#tabRecN').textContent   = RECEITAS.length;
+$('#tabTraN').textContent   = TRANSFER.length;
+$('#tabSubN').textContent   = SUBVENCOES.length;
+
 // Inicialização
+renderInsights();
 renderRadar();
 renderCredores();
 renderEmpChips();
 renderEmpenhos();
+renderPagamentos();
+renderRecChips();
+renderReceitas();
 renderSrvFiltros();
 renderServidores();
+renderComissionados();
 renderDiarias();
 renderLicitacoes();
 

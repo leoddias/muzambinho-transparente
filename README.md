@@ -8,43 +8,78 @@ Um scraper que coleta dados do [PortalTP oficial](https://muzambinho-mg.portaltp
 
 **O portal embute o dataset completo de cada categoria** — nada é truncado para "top N". Todas as listas têm busca, ordenação e filtros que percorrem o dataset inteiro, com paginação client-side de 60 itens por vez.
 
-A primeira seção é um **Radar de Gastos** com cards de anomalias detectadas automaticamente (concentração de credores, dispensas de alto valor, anulações excessivas, etc.).
+Começa com uma **Visão geral** (4 cards visuais: balança fiscal, origem do dinheiro, pirâmide do orçamento, comissionados vs efetivos), seguida pelo **Radar de Gastos** (12 heurísticas de anomalia ordenadas por severidade).
 
-Cobertura atual:
+Cobertura atual (exercício 2026 até hoje):
 
-- **2.324 empenhos** totalizando R$ 50,5 milhões no ano (todos navegáveis)
-- **384 credores/fornecedores** agregados (top: Folha de Pagamento R$ 12,3M = 24% do orçamento)
-- **825 servidores** cadastrados (749 ativos) com filtros por situação, vínculo e lotação
-- **57 diárias** classificadas como elemento contábil 33901400000 (extraídas dos empenhos — o endpoint dedicado retornava só 6)
+### De onde vem o dinheiro
+- **2.544 receitas realizadas** totalizando R$ 34,76M arrecadados (de R$ 122M previstos)
+- **7 convênios/transferências formais recebidos** (R$ 1,16M); 88% da arrecadação vem de transferências da União/Estado (FPM, FUNDEB, SUS, ICMS, IPVA)
+
+### Para onde vai
+- **2.324 empenhos** totalizando R$ 50,5M (empenhado líquido R$ 42,3M após anulações)
+- **1.324 pagamentos efetivos** (R$ 11,2M — só 22% do empenhado virou saída de caixa)
+- **384 credores/fornecedores** agregados (top: Folha de Pagamento R$ 12,3M = 24%)
+- **57 diárias** (elemento contábil 33901400000 — fonte canônica, não o endpoint dedicado que retornava só 6)
+- **10 subvenções** ao terceiro setor (R$ 126k)
 - **81 processos de compra**: 5 licitações + 3 dispensas (R$ 7,79M!) + 30 contratos + 43 atas de RP
-- **8 achados no Radar de Gastos**, ordenados por severidade
+
+### Pessoas
+- **825 servidores** cadastrados (749 ativos) com filtros por situação, vínculo e lotação
+- **53 cargos comissionados** custando R$ 244k/mês (6% do quadro, 10% do custo)
+
+### Achados-chave (Radar)
+- ⚖️ Empenhou 22% a mais do que arrecadou (déficit de compromisso R$ 7,57M)
+- 🏛️ 88% da receita vem de transferências externas
+- ⚠️ 1 dispensa de R$ 7,79M sem licitação competitiva
+- 🔄 16% dos empenhos foram anulados
+- 💸 Só 22% dos empenhos viraram pagamento efetivo
+- 🎩 Comissionados consomem 1.6× seu peso no quadro
 
 ## Estrutura
 
 ```
 .
 ├── index.html                     # Portal de transparência (abrir no browser)
+├── assets/
+│   └── brasao.png                 # Brasão oficial (embutido como base64 no HTML)
 ├── scraping/
 │   ├── _portaltp.py               # Helper compartilhado (Playwright + parsers)
-│   ├── coleta_empenhos.py         # Coleta empenhos individuais
-│   ├── coleta_servidores.py       # Coleta cadastro de servidores + salário base
-│   ├── coleta_diarias.py          # Coleta diárias de viagem
-│   ├── coleta_licitacoes.py       # Coleta licitações e contratos
+│   │
+│   ├── coleta_empenhos.py         # Empenhos individuais (despesas formais)
+│   ├── coleta_pagamentos.py       # Pagamentos efetivos (3º estágio da despesa)
+│   ├── coleta_diarias.py          # Diárias (via empenhos por elemento 33901400000)
+│   ├── coleta_subvencoes.py       # Subvenções ao terceiro setor
+│   ├── coleta_licitacoes.py       # Licitações + dispensas + contratos + atas RP
+│   │
+│   ├── coleta_receitas.py         # Receitas arrecadadas (de onde vem)
+│   ├── coleta_transferencias.py   # Convênios/transferências recebidas
+│   │
+│   ├── coleta_servidores.py       # Cadastro de servidores + salário base
+│   ├── coleta_comissionados.py    # Cargos de confiança (cruzado com servidores)
+│   │
 │   ├── agrega_credores.py         # Agrega empenhos por CNPJ → ranking
-│   ├── gera_jsons_site.py         # CSVs → JSONs para o site
-│   ├── atualiza_index.py          # Gera index.html a partir dos JSONs
-│   ├── _inspect.py                # (diagnóstico) inspeciona forms do PortalTP
-│   └── _test_*.py                 # (diagnóstico) testes de export e render
+│   ├── gera_jsons_site.py         # CSVs → JSONs + insights + radar
+│   ├── atualiza_index.py          # Gera index.html final a partir dos JSONs
+│   │
+│   ├── _inspect.py, _descobre_urls.py, _contar_endpoints.py
+│   │                              # Diagnóstico de endpoints (não no pipeline)
+│   └── _test_*.py                 # Validação de render/export
 ├── data/
-│   ├── _raw/                      # Exports XML brutos do PortalTP
+│   ├── _raw/                      # Exports XML brutos do PortalTP (audit trail)
 │   ├── empenhos_completo.csv      # Todos os 2324 empenhos do ano
 │   ├── credores_completo.csv      # 384 credores agregados
+│   ├── pagamentos_completo.csv    # 1324 pagamentos efetivos
+│   ├── receitas_completo.csv      # 2544 receitas realizadas
+│   ├── transferencias_completo.csv
 │   ├── servidores_completo.csv    # 825 servidores
+│   ├── comissionados_completo.csv # 53 cargos de confiança
 │   ├── diarias_completo.csv
-│   ├── licitacoes_completo.csv
-│   ├── contratos_completo.csv
-│   ├── *_top50.csv / *_top20.csv  # Subsets (artefato; o portal usa os _completo)
-│   └── site/*.json                # JSONs completos prontos para embutir no HTML
+│   ├── subvencoes_completo.csv
+│   ├── licitacoes_completo.csv, dispensas_completo.csv,
+│   │   contratos_completo.csv, atas_completo.csv
+│   ├── *_top50.csv / *_top20.csv  # Subsets antigos (artefato; portal usa _completo)
+│   └── site/*.json                # JSONs completos + radar.json + insights.json
 └── debug/                         # Screenshots e HTMLs de exploração
 ```
 
@@ -60,13 +95,21 @@ Abra `index.html` no browser. Não precisa de servidor.
 pip install playwright beautifulsoup4 lxml
 playwright install chromium
 
-python scraping/coleta_empenhos.py     # ~30s
-python scraping/agrega_credores.py     # instantâneo
-python scraping/coleta_servidores.py   # ~30s
-python scraping/coleta_diarias.py      # ~30s
-python scraping/coleta_licitacoes.py   # ~30s (licitações + contratos)
-python scraping/gera_jsons_site.py     # instantâneo
-python scraping/atualiza_index.py      # gera o index.html final
+# Coletores (Playwright, ~30-60s cada). Empenhos é pré-requisito para diárias e credores.
+python scraping/coleta_empenhos.py
+python scraping/agrega_credores.py
+python scraping/coleta_diarias.py       # depende de empenhos
+python scraping/coleta_receitas.py
+python scraping/coleta_transferencias.py
+python scraping/coleta_pagamentos.py
+python scraping/coleta_subvencoes.py
+python scraping/coleta_servidores.py
+python scraping/coleta_comissionados.py  # depende de servidores
+python scraping/coleta_licitacoes.py     # licitações + dispensas + contratos + atas
+
+# Pós-processamento (rápido, só stdlib)
+python scraping/gera_jsons_site.py       # CSVs → JSONs + insights + radar
+python scraping/atualiza_index.py        # gera o index.html final
 ```
 
 Os CSVs são gerados em `data/`, JSONs em `data/site/`, e o `index.html` final na raiz.

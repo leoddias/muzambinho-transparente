@@ -179,7 +179,8 @@ def gera_licitacoes() -> dict:
     }
 
 
-def gera_radar(empenhos, credores, licitacoes, servidores, kpis) -> list[dict]:
+def gera_radar(empenhos, credores, licitacoes, servidores, kpis,
+               receitas=None, comissionados=None, pagamentos=None, insights=None) -> list[dict]:
     """Heurísticas de anomalia/concentração para a seção 'Radar de Gastos'.
 
     Cada achado tem: tipo, severidade (alta/media/baixa/info), título, descrição,
@@ -309,7 +310,234 @@ def gera_radar(empenhos, credores, licitacoes, servidores, kpis) -> list[dict]:
             "link": "#empenhos",
         })
 
+    # 9. Balança fiscal: gasta mais do que arrecada? (precisa de receitas)
+    if receitas and insights:
+        bal = insights.get("balanca", {})
+        arrec = bal.get("arrecadado", 0)
+        emp = bal.get("empenhado_liquido", 0)
+        pago = bal.get("pago", 0)
+        if arrec > 0 and emp > arrec:
+            deficit = emp - arrec
+            pct = deficit / arrec * 100
+            sev = "alta" if pct > 30 else "media"
+            achados.append({
+                "tipo": "fiscal", "icone": "⚖️", "severidade": sev,
+                "titulo": f'Empenhou {pct:.0f}% a mais do que arrecadou',
+                "descricao": f'Arrecadou {brl(arrec)} mas empenhou {brl(emp)} no ano — déficit de compromisso de {brl(deficit)}. Pagamentos efetivos somam só {brl(pago)} ({pago/emp*100:.0f}% dos empenhos viraram saída de caixa). Diferença pode estar em caixa do ano anterior ou virará restos a pagar.',
+                "link": "#receitas",
+            })
+
+    # 10. Dependência de transferências externas
+    if receitas:
+        # Identifica receitas de transferências (palavras-chave nas categorias/origens)
+        kw_transf = ["TRANSFER", "FPM", "FUNDEB", "ICMS", "IPVA", "FNDE", "SUS", "REPASSE", "QUOTA-PARTE", "COTA-PARTE"]
+        total = sum(r["realizado_num"] for r in receitas if r["realizado_num"] > 0)
+        de_transf = sum(r["realizado_num"] for r in receitas
+                        if r["realizado_num"] > 0 and any(
+                            k in (r.get("categoria", "") + " " + r.get("origem", "") + " " + r.get("especie", "")).upper()
+                            for k in kw_transf
+                        ))
+        if total > 0:
+            pct = de_transf / total * 100
+            if pct >= 60:
+                sev = "alta" if pct >= 80 else "media"
+                achados.append({
+                    "tipo": "dependencia", "icone": "🏛️", "severidade": sev,
+                    "titulo": f'{pct:.0f}% da receita vem de transferências externas',
+                    "descricao": f'{brl(de_transf)} de {brl(total)} arrecadados vieram de transferências da União (FPM, FUNDEB, SUS) e do Estado (ICMS, IPVA). Cidades pequenas dependem disso, mas baixa autonomia tributária reduz a margem de manobra do município. Ver "De onde vem o dinheiro" abaixo.',
+                    "link": "#receitas",
+                })
+
+    # 11. Comissionados consomem mais que seu peso no quadro
+    if insights:
+        c = insights.get("comissionados", {})
+        if c.get("pct_quadro", 0) > 0 and c.get("pct_custo", 0) > 0:
+            pct_quadro = c["pct_quadro"]
+            pct_custo = c["pct_custo"]
+            if pct_custo > pct_quadro * 1.3:  # cargos de confiança custam desproporcionalmente
+                sev = "media" if pct_custo > pct_quadro * 1.8 else "baixa"
+                achados.append({
+                    "tipo": "pessoal", "icone": "🎩", "severidade": sev,
+                    "titulo": f'Comissionados: {pct_quadro:.0f}% do quadro mas {pct_custo:.0f}% do custo',
+                    "descricao": f'{c["qtd"]} cargos de confiança (livre nomeação) custam {brl(c["custo_mensal"])}/mês, equivalente a {pct_custo:.1f}% da folha base total. Salário médio dos comissionados é {brl(c["custo_mensal"]/c["qtd"]) if c["qtd"] else "R$ 0"}/mês.',
+                    "link": "#comissionados",
+                })
+            else:
+                # Mesmo equilibrado, mostrar informativo
+                achados.append({
+                    "tipo": "pessoal", "icone": "🎩", "severidade": "info",
+                    "titulo": f'{c["qtd"]} cargos comissionados ({pct_quadro:.1f}% do quadro)',
+                    "descricao": f'Custam {brl(c["custo_mensal"])}/mês, equivalente a {pct_custo:.1f}% da folha base. Salário médio: {brl(c["custo_mensal"]/c["qtd"]) if c["qtd"] else "R$ 0"}.',
+                    "link": "#comissionados",
+                })
+
+    # 12. Pagamentos efetivos vs empenhos (% executado em caixa)
+    if pagamentos is not None and kpis.get("total_empenhado", 0) > 0:
+        pct_pago = kpis.get("total_pago", 0) / kpis["total_empenhado"] * 100
+        if pct_pago < 35:
+            achados.append({
+                "tipo": "execucao", "icone": "💸", "severidade": "media",
+                "titulo": f'Só {pct_pago:.0f}% dos empenhos viraram pagamento efetivo',
+                "descricao": f'Empenhou {brl(kpis["total_empenhado"])} mas pagou só {brl(kpis["total_pago"])}. O restante está em estágios intermediários (a liquidar/a pagar) ou irá para restos a pagar do próximo exercício. Cuidado com a bola-de-neve fiscal.',
+                "link": "#pagamentos",
+            })
+
     return achados
+
+
+def gera_receitas() -> list[dict]:
+    rows = ler_csv(DATA / "receitas_completo.csv")
+    out = []
+    for r in rows:
+        out.append({
+            "data": r.get("Data", ""),
+            "categoria": r.get("Categoria", ""),
+            "origem": r.get("Origem", ""),
+            "especie": r.get("Especie", ""),
+            "rubrica": r.get("Rubrica", ""),
+            "alinea": r.get("Alinea", ""),
+            "subalinea": r.get("Subalinea", ""),
+            "plano_conta": r.get("Plano Conta", ""),
+            "tipo": r.get("Tipo", ""),
+            "previsao": r.get("Valor Previsto", ""),
+            "previsao_num": to_float(r.get("_previsao", "")),
+            "atualizado": r.get("Valor Atualizado", ""),
+            "atualizado_num": to_float(r.get("_atualizado", "")),
+            "realizado": r.get("Valor Realizado", ""),
+            "realizado_num": to_float(r.get("_realizado", "")),
+        })
+    return out
+
+
+def gera_transferencias() -> list[dict]:
+    rows = ler_csv(DATA / "transferencias_completo.csv")
+    return [{
+        "data": r["Data"],
+        "concedente": r["Concedente"],
+        "beneficiario": r["Beneficiario"],
+        "cnpj": r["CNPJ Beneficiario"],
+        "objeto": r["Objeto"],
+        "vigencia_inicial": r["Vigencia Inicial"],
+        "vigencia_final": r["Vigencia Final"],
+        "valor": r["Valor a Receber"],
+        "valor_num": to_float(r["_valor"]),
+        "contrapartida": r["Valor Contrapartida"],
+        "contrapartida_num": to_float(r["_contrapartida"]),
+    } for r in rows]
+
+
+def gera_comissionados() -> list[dict]:
+    rows = ler_csv(DATA / "comissionados_completo.csv")
+    return [{
+        "matricula": r["Matricula"],
+        "nome": r["Nome"],
+        "cpf": r["CPF"],
+        "cargo": r["Cargo"],
+        "lotacao": r["Lotacao"],
+        "situacao": r["Situacao"],
+        "admissao": r["Admissao"],
+        "demissao": r["Demissao"],
+        "carga_horaria": r.get("Carga Horaria", ""),
+        "salario_base": r["Salario Base"],
+        "salario_base_num": to_float(r["_salario"]),
+    } for r in rows]
+
+
+def gera_pagamentos() -> list[dict]:
+    rows = ler_csv(DATA / "pagamentos_completo.csv")
+    return [{
+        "data": r["Data"],
+        "pagamento": r["Pagamento"],
+        "empenho": r["Empenho"],
+        "liquidacao": r.get("Liquidacao", ""),
+        "processo": r["Processo"],
+        "favorecido": r["Favorecido"],
+        "cnpj": r["CPF/CNPJ"],
+        "tipo": r["Tipo"],
+        "historico": r["Historico"],
+        "funcao": r["Funcao"],
+        "elemento": r["Elemento"],
+        "categoria": r.get("Categoria", ""),
+        "valor": r["Valor"],
+        "valor_num": to_float(r["_valor"]),
+    } for r in rows]
+
+
+def gera_subvencoes() -> list[dict]:
+    rows = ler_csv(DATA / "subvencoes_completo.csv")
+    return [{
+        "data": r["Data"],
+        "processo": r["Processo"],
+        "beneficiario": r["Beneficiario"],
+        "cnpj": r["CPF/CNPJ"],
+        "historico": r["Historico"],
+        "pagamento": r.get("Pagamento", ""),
+        "valor": r["Valor"],
+        "valor_num": to_float(r["_valor"]),
+    } for r in rows]
+
+
+def gera_insights(receitas, empenhos, comissionados, servidores, pagamentos, kpis) -> dict:
+    """Agregacoes para os blocos visuais: balanca fiscal, origem do dinheiro,
+    piramide do orcamento por funcao, comissionados vs efetivos."""
+    from collections import Counter
+
+    total_arrecadado = sum(r["realizado_num"] for r in receitas)
+    total_previsto = sum(r["atualizado_num"] for r in receitas)
+    total_empenhado = kpis["total_empenhado"] - kpis.get("total_anulacoes", 0)
+    total_pago = sum(p["valor_num"] for p in pagamentos if p["valor_num"] > 0)
+
+    # Balanca fiscal: arrecadado vs empenhado vs pago
+    balanca = {
+        "arrecadado": total_arrecadado,
+        "previsto_atualizado": total_previsto,
+        "empenhado_liquido": total_empenhado,
+        "pago": total_pago,
+        "saldo_caixa": total_arrecadado - total_pago,  # entrada vs saida real
+        "compromisso": total_arrecadado - total_empenhado,  # entrada vs prometido
+    }
+
+    # De onde vem o dinheiro - por Categoria
+    origem_categoria = Counter()
+    for r in receitas:
+        cat = r.get("categoria", "").strip()
+        if cat and r["realizado_num"] > 0:
+            origem_categoria[cat] += r["realizado_num"]
+    # E por Origem (mais detalhado)
+    origem_origem = Counter()
+    for r in receitas:
+        org = r.get("origem", "").strip()
+        if org and r["realizado_num"] > 0:
+            origem_origem[org] += r["realizado_num"]
+
+    # Piramide do orcamento por funcao (despesa)
+    func_total = Counter()
+    for e in empenhos:
+        if e.get("valor_num", 0) > 0 and e.get("funcao"):
+            func_total[e["funcao"]] += e["valor_num"]
+
+    # Comissionados vs efetivos
+    custo_comissionados = sum(c["salario_base_num"] for c in comissionados)
+    custo_total_folha_base = sum(s["salario_base_num"] for s in servidores)
+    qtd_comissionados = len(comissionados)
+    qtd_efetivos = sum(1 for s in servidores if s.get("vinculo", "") == "Efetivo")
+    qtd_total = len(servidores)
+
+    return {
+        "balanca": balanca,
+        "origem_categoria": dict(origem_categoria.most_common(8)),
+        "origem_origem": dict(origem_origem.most_common(10)),
+        "piramide_funcao": dict(func_total.most_common(12)),
+        "comissionados": {
+            "qtd": qtd_comissionados,
+            "qtd_efetivos": qtd_efetivos,
+            "qtd_total_quadro": qtd_total,
+            "pct_quadro": qtd_comissionados / qtd_total * 100 if qtd_total else 0,
+            "custo_mensal": custo_comissionados,
+            "custo_folha_base_total": custo_total_folha_base,
+            "pct_custo": custo_comissionados / custo_total_folha_base * 100 if custo_total_folha_base else 0,
+        },
+    }
 
 
 def gera_kpis() -> dict:
@@ -332,10 +560,28 @@ def gera_kpis() -> dict:
     atas_all = ler_csv(DATA / "atas_completo.csv")
     total_atas = sum(to_float(r["_valor"]) for r in atas_all)
 
+    # Novos: receitas, transferencias, comissionados, pagamentos, subvencoes
+    receitas_all = ler_csv(DATA / "receitas_completo.csv")
+    total_arrecadado = sum(to_float(r.get("_realizado", "")) for r in receitas_all)
+    total_previsto = sum(to_float(r.get("_atualizado", "")) for r in receitas_all)
+
+    transferencias_all = ler_csv(DATA / "transferencias_completo.csv")
+    total_transferencias = sum(to_float(r.get("_valor", "")) for r in transferencias_all)
+
+    comissionados_all = ler_csv(DATA / "comissionados_completo.csv")
+    custo_comissionados = sum(to_float(r.get("_salario", "")) for r in comissionados_all)
+
+    pagamentos_all = ler_csv(DATA / "pagamentos_completo.csv")
+    total_pago = sum(to_float(r.get("_valor", "")) for r in pagamentos_all if to_float(r.get("_valor", "")) > 0)
+
+    subvencoes_all = ler_csv(DATA / "subvencoes_completo.csv")
+    total_subvencoes = sum(to_float(r.get("_valor", "")) for r in subvencoes_all)
+
     max_credor = max((to_float(r["_valor"]) for r in credores_all), default=1.0)
     # Max empenho positivo (anulações ignoradas para escala da barra)
     max_empenho = max((to_float(r["_valor"]) for r in empenhos_all if to_float(r["_valor"]) > 0), default=1.0)
     max_salario = max((to_float(r["_salario_base"]) for r in servidores_all), default=1.0)
+    max_receita = max((to_float(r.get("_realizado", "")) for r in receitas_all), default=1.0)
 
     return {
         "total_empenhado": total_empenhado,
@@ -353,9 +599,23 @@ def gera_kpis() -> dict:
         "qtd_dispensas": len(dispensas_all),
         "qtd_atas": len(atas_all),
         "total_atas": total_atas,
+        # Novos
+        "total_arrecadado": total_arrecadado,
+        "total_previsto": total_previsto,
+        "qtd_receitas": len(receitas_all),
+        "total_transferencias": total_transferencias,
+        "qtd_transferencias": len(transferencias_all),
+        "qtd_comissionados": len(comissionados_all),
+        "custo_comissionados_mes": custo_comissionados,
+        "total_pago": total_pago,
+        "qtd_pagamentos": len(pagamentos_all),
+        "total_subvencoes": total_subvencoes,
+        "qtd_subvencoes": len(subvencoes_all),
+        "saldo_fiscal": total_arrecadado - total_pago,
         "max_credor": max_credor,
         "max_empenho": max_empenho,
         "max_salario": max_salario,
+        "max_receita": max_receita,
     }
 
 
@@ -367,8 +627,16 @@ def main() -> None:
     servidores = gera_servidores()
     diarias = gera_diarias()
     licitacoes = gera_licitacoes()
+    receitas = gera_receitas()
+    transferencias = gera_transferencias()
+    comissionados = gera_comissionados()
+    pagamentos = gera_pagamentos()
+    subvencoes = gera_subvencoes()
     kpis = gera_kpis()
-    radar = gera_radar(empenhos, credores, licitacoes, servidores, kpis)
+    insights = gera_insights(receitas, empenhos, comissionados, servidores, pagamentos, kpis)
+    radar = gera_radar(empenhos, credores, licitacoes, servidores, kpis,
+                       receitas=receitas, comissionados=comissionados,
+                       pagamentos=pagamentos, insights=insights)
 
     def save(name: str, obj) -> None:
         path = SITE / f"{name}.json"
@@ -383,16 +651,26 @@ def main() -> None:
     save("servidores", servidores)
     save("diarias", diarias)
     save("licitacoes", licitacoes)
+    save("receitas", receitas)
+    save("transferencias", transferencias)
+    save("comissionados", comissionados)
+    save("pagamentos", pagamentos)
+    save("subvencoes", subvencoes)
+    save("insights", insights)
     save("kpis", kpis)
     save("radar", radar)
 
     print(f"\n  KPIs:")
-    print(f"    Empenhado: R$ {kpis['total_empenhado']:,.2f}  ({kpis['total_empenhos']} empenhos, {kpis['total_credores']} credores)")
-    print(f"    Anulações: R$ {kpis['total_anulacoes']:,.2f}")
+    print(f"    Arrecadado: R$ {kpis['total_arrecadado']:,.2f}  (de R$ {kpis['total_previsto']:,.2f} previstos)")
+    print(f"    Empenhado:  R$ {kpis['total_empenhado']:,.2f}  ({kpis['total_empenhos']} empenhos)")
+    print(f"    Pago:       R$ {kpis['total_pago']:,.2f}  ({kpis['qtd_pagamentos']} pagamentos)")
+    print(f"    Saldo fiscal: R$ {kpis['saldo_fiscal']:,.2f}  (arrecadado − pago)")
     print(f"    Folha base mensal: R$ {kpis['folha_base_mensal']:,.2f}  ({kpis['servidores_ativos']}/{kpis['total_servidores']} ativos)")
+    print(f"      dos quais {kpis['qtd_comissionados']} comissionados ({kpis['custo_comissionados_mes']:,.2f}/mês)")
     print(f"    Diárias: R$ {kpis['total_diarias']:,.2f}  ({kpis['qtd_diarias']} registros)")
-    print(f"    Contratos: R$ {kpis['total_contratos']:,.2f}  ({kpis['qtd_contratos']} vigentes)")
-    print(f"    Compras: {kpis['qtd_licitacoes']} licitações + {kpis['qtd_dispensas']} dispensas + {kpis['qtd_atas']} atas (R$ {kpis['total_atas']:,.2f})")
+    print(f"    Subvenções: R$ {kpis['total_subvencoes']:,.2f}  ({kpis['qtd_subvencoes']} concessões)")
+    print(f"    Transferências recebidas: R$ {kpis['total_transferencias']:,.2f}  ({kpis['qtd_transferencias']} convênios)")
+    print(f"    Compras: {kpis['qtd_licitacoes']}L + {kpis['qtd_dispensas']}D + {kpis['qtd_atas']}A + {kpis['qtd_contratos']}C")
 
 
 if __name__ == "__main__":

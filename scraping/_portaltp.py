@@ -116,17 +116,21 @@ EXPORT_IDS = {
 MENU_IMPRIMIR_ID = "ctl00_containerCorpo_grdData_DXCTMenu0_DXI2_T"
 
 
-def baixar_export(page: Page, destino: Path, formato: str = "xml") -> Download:
+def baixar_export(page: Page, destino: Path, formato: str = "xml",
+                  timeout_ms: int = 180000) -> Download:
     """Abre o menu Imprimir Relatorio e dispara o export do formato escolhido.
 
     Salva em `destino` e retorna o objeto Download (com suggested_filename, etc).
+    `timeout_ms` pode ser elevado para datasets grandes onde o servidor demora
+    a gerar o arquivo (ex: restos a pagar com centenas de registros pode levar
+    > 3 min).
     """
     if formato not in EXPORT_IDS:
         raise ValueError(f"formato desconhecido: {formato!r}")
     # Abre o submenu primeiro (sem isso o link de export fica invisivel)
     page.click(f"#{MENU_IMPRIMIR_ID}")
     page.wait_for_timeout(1000)
-    with page.expect_download(timeout=180000) as dl_info:
+    with page.expect_download(timeout=timeout_ms) as dl_info:
         page.click(f"#{EXPORT_IDS[formato]}")
     dl = dl_info.value
     destino.parent.mkdir(parents=True, exist_ok=True)

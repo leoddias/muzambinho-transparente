@@ -30,7 +30,14 @@ Antes de escrever uma linha de código, **pergunte ao usuário tudo abaixo**. Us
 
 | # | Pergunta | Default sugerido |
 |---|---|---|
-| 7 | **Categorias de dados** (marque as desejadas) — empenhos por credor, salários/folha, diárias, licitações, contratos, obras, receitas, repasses, frota, bens patrimoniais. **Para cada categoria escolhida, o portal exibirá o dataset completo** — sem truncar para "top N". | Empenhos + credores + servidores + diárias + licitações + contratos (mesmo que `muzambinho-transparente`) |
+| 7 | **Categorias de dados** (marque as desejadas) — escopo completo recomendado abaixo. **Para cada categoria escolhida, o portal exibirá o dataset completo** — sem truncar para "top N". | Cobertura completa: empenhos, credores agregados, servidores, comissionados, diárias, licitações, dispensas, contratos, atas, pagamentos, receitas, transferências recebidas, subvenções concedidas |
+
+**Escopo recomendado** (todos disponíveis no PortalTP/Fiorilli; ver tabela "Catálogo de endpoints" abaixo):
+
+- **Saída**: empenhos, credores (agregação), pagamentos efetivos, diárias, subvenções concedidas, licitações, dispensas, contratos, atas de RP
+- **Entrada**: receitas realizadas, transferências/convênios recebidos
+- **Pessoas**: servidores (todos), comissionados (subset destacado)
+- **Roadmap**: restos a pagar (endpoint não tem export — requer scraping HTML), frota, bens imóveis, obras, estagiários
 | 8 | **Período de cobertura** | Ano corrente: `01/01/{ano} até hoje` |
 | 9 | **Nome do projeto / repositório** | `<cidade>-transparente` (ex: `pocosdecaldas-transparente`) |
 
@@ -336,10 +343,28 @@ Verifique manualmente:
 - **Export**: dentro do menu "Imprimir Relatório" — **precisa clicar no pai primeiro**
 - **XML válido?** Não — tags com chars inválidos + `&` cru + sem root
 - **Encoding XML**: UTF-8 BOM. **Encoding CSV**: cp1252.
-- **Endpoints úteis** (todos em `/consultas/`):
-  - `despesas/empenhos.aspx`, `despesas/diarias.aspx` (cuidado: pode estar filtrado!), `despesas/passagens.aspx`, `despesas/liquidacoes.aspx`, `despesas/pagamentos.aspx`, `despesas/obras.aspx`, `despesas/subvencoes.aspx`
-  - `compras/licitacoes.aspx`, `compras/dispensas.aspx`, `compras/contratos.aspx`, `compras/atas.aspx`
-  - `pessoal/servidores.aspx`, `pessoal/cargosconfianca.aspx`
+- **Catálogo completo de endpoints** (todos em `/consultas/`, validados em Muzambinho/2026):
+
+  | Endpoint | Categoria | Filtros | Tem export? | Notas |
+  |---|---|---|---|---|
+  | `despesas/empenhos.aspx` | Saída — empenhos | datas | ✅ XML | Fonte canônica de despesa |
+  | `despesas/pagamentos.aspx` | Saída — pagamento efetivo | datas | ✅ XML | Cruzar com empenho |
+  | `despesas/liquidacoes.aspx` | Saída — estágio intermediário | datas | ✅ XML | (não usado no portal de referência) |
+  | `despesas/diarias.aspx` | Saída — diárias | ano + mês | ⚠️ XML | **Filtra demais!** Use empenhos por elemento `33901400000` |
+  | `despesas/subvencoes.aspx` | Saída — terceiro setor | ano + mês | ✅ XML | ONGs, igrejas |
+  | `despesas/passagens.aspx` | Saída — viagens | ano + mês | ✅ XML | Pode estar vazio |
+  | `despesas/obras.aspx` | Saída — obras | ano + mês | ✅ XML | Pode estar vazio |
+  | `despesas/restospagar.aspx` | Saída — dívidas anteriores | datas | ❌ **sem export!** | Requer scraping HTML (293 itens disponíveis em Muzambinho) |
+  | `receitas/execucaoreceitas.aspx` | Entrada — arrecadação | datas | ✅ XML | Fonte canônica de receita |
+  | `repasses/conveniosrecebidos.aspx` | Entrada — convênios | datas | ✅ XML | Transferências formais (não inclui FPM/FUNDEB automáticos) |
+  | `compras/licitacoes.aspx` | Compras — certames | ano + mês | ✅ XML | |
+  | `compras/dispensas.aspx` | Compras — sem certame | ano + mês | ✅ XML | Cuidado: pode esconder valores grandes |
+  | `compras/contratos.aspx` | Compras — vigentes | ano + mês | ✅ XML | |
+  | `compras/atas.aspx` | Compras — registro de preço | ano + mês | ✅ XML | Frequentemente esquecido |
+  | `pessoal/servidores.aspx` | Pessoas — quadro | ano + mês | ✅ XML | Só salário base de referência |
+  | `pessoal/cargosconfianca.aspx` | Pessoas — comissionados | ano + mês | ✅ XML | Sem salário próprio — cruzar com servidores via matrícula |
+
+  **API REST** em `/api/<categoria>/api-<endpoint>.aspx`: existe mas é apenas uma página com formulário que dispara o mesmo download (mesma infra Playwright/ViewState). Não é REST puro — só uma URL alternativa pro mesmo helper.
 - **API REST de dados abertos**: `/api/dadosabertos.aspx` lista 30+ endpoints em JSON/CSV/XML/TXT, licença CC0 (domínio público). Inclui datasets que não estão nas consultas web: receitas detalhadas, frota, bens patrimoniais, convênios, estagiários. **Roadmap futuro: integrar via REST puro (sem Playwright).**
 - **Armadilhas**: ver [AGENTS.md](AGENTS.md) seções 1–10
 
@@ -413,6 +438,29 @@ Verifique manualmente:
 13. **Sem dependências pesadas.** stdlib + Playwright + BeautifulSoup. Sem pandas, sem React, sem build step.
 14. **Re-executável.** Todos os scripts devem ser idempotentes — rodar de novo só atualiza dados, não quebra nada.
 
+## Padrão de Visão Geral (4 cards de insight)
+
+Antes do Radar, mostre uma seção **"Visão geral"** com 4 cards visuais que dão contexto aos números. Diferente do Radar (que aponta anomalias específicas), os Insights mostram a **estrutura** do dinheiro público. Implementados em `gera_jsons_site.py:gera_insights()` e renderizados a partir de `data/site/insights.json`.
+
+### Os 4 cards obrigatórios
+
+1. **Balança fiscal** — 3 colunas grandes: Arrecadado / Empenhado / Pago, mais uma barra horizontal sobrepondo os 3 valores em proporção. Texto-lead em destaque cita se há déficit ou superávit, e qual % dos empenhos virou pagamento efetivo.
+
+2. **De onde vem o dinheiro** — barras horizontais ranqueando as categorias de receita por valor realizado (Receitas Correntes, Receitas de Capital, Receitas Tributárias, Transferências Correntes, etc). Mostra a estrutura de arrecadação do município.
+
+3. **Pirâmide do orçamento** — barras horizontais por função de governo (Educação 46%, Saúde 28%, Administração 9%...). Cada barra mostra % do total empenhado. Substitui a antiga visão "concentração por função" que estava só no Radar.
+
+4. **Comissionados vs efetivos** — dois números grandes (quantidade de cargos de confiança, e % do custo da folha que representam) + duas barras de comparação (% do quadro vs % do custo). Detecta desproporção típica do "cabide de empregos".
+
+### Por que insights ≠ radar
+
+| Insights | Radar |
+|---|---|
+| Estrutura permanente | Anomalias pontuais |
+| Sempre presente, mesmo se "normal" | Só aparece quando heurística dispara |
+| Visualização (barras, números grandes) | Cards com severity coloridas |
+| Contextualiza | Aponta |
+
 ## Padrão de Radar de Gastos ("O que os dados revelam")
 
 A **primeira seção** depois da intro (antes de qualquer lista) deve ser um grid de cards com **anomalias e concentrações** detectadas automaticamente — não acusações, mas **pistas para investigação cidadã**. Implementação em `scraping/gera_jsons_site.py:gera_radar()` que gera `data/site/radar.json` e é embutido como `RADAR` no template.
@@ -429,6 +477,12 @@ A **primeira seção** depois da intro (antes de qualquer lista) deve ser um gri
 | 6 | **Fornecedores em múltiplas categorias** — CNPJs em contratos + atas + dispensas | info | mostrar se ≥ 1 |
 | 7 | **Servidores em regime não-ativo** — % do quadro afastado/licenciado | baixa | 7% |
 | 8 | **Histórico genérico em empenhos altos** — termos vagos ("diversas", "outros") + valor ≥ R$ 50k | baixa | mostrar se > 0 |
+| 9 | **Balança fiscal: empenhou mais do que arrecadou** — déficit de compromisso | alta se > 30%, media se > 0% | qualquer déficit |
+| 10 | **Dependência de transferências externas** — % da receita que vem de União/Estado (FPM, FUNDEB, SUS, ICMS, IPVA) | alta se > 80%, media se > 60% | 60% |
+| 11 | **Comissionados desproporcionais** — % do custo da folha > 1.3× % do quadro | media se > 1.8×, baixa se 1.3-1.8× | 1.3× ratio |
+| 12 | **Pagamentos efetivos baixos** — pago < 35% do empenhado | media | 35% |
+
+As heurísticas 9-12 requerem datasets adicionais (receitas, comissionados, pagamentos) e portanto só disparam se esses coletores estiverem rodando. A função `gera_radar()` recebe esses datasets como parâmetros opcionais.
 
 ### Estrutura de cada achado (JSON)
 

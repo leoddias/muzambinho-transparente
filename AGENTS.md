@@ -16,7 +16,7 @@ O portal de origem é o **PortalTP da Fiorilli** (versão 3.26.x), um sistema AS
 
 ## Princípio editorial: dataset completo, nunca truncado
 
-O `index.html` embute **todos** os registros de cada categoria (~1.7MB total no caso de Muzambinho). Não há "top 20" ou "top 50" no portal — o leitor pode navegar todos os 2.324 empenhos, 825 servidores, 384 credores etc. Toda lista tem:
+O `index.html` embute **todos** os registros de cada categoria (~4MB total no caso de Muzambinho, incluindo as novas seções de receitas/pagamentos/comissionados). Não há "top 20" ou "top 50" no portal — o leitor pode navegar todos os 2.544 lançamentos de receita, 2.324 empenhos, 1.324 pagamentos, 825 servidores, 384 credores, 53 comissionados, etc. Toda lista tem:
 
 - **Busca** livre por múltiplos campos
 - **Ordenação** padrão de maior valor para menor (`valor_desc`)
@@ -111,25 +111,71 @@ O endpoint dedicado filtra demais — provavelmente só pega registros com "Base
 
 **Regra**: para qualquer categoria que pode estar no orçamento sob código contábil específico (diárias, passagens, obras, restos a pagar), **prefira filtrar `empenhos_completo.csv` pelo elemento**. Mantenha o download do endpoint dedicado em `data/_raw/` apenas para audit trail. Veja `scraping/coleta_diarias.py` para o padrão de implementação.
 
-### 11. API REST de dados abertos (não usado ainda)
+### 11. API REST de dados abertos = mesma infra das consultas
 
-`https://muzambinho-mg.portaltp.com.br/api/dadosabertos.aspx` lista 30+ endpoints REST em JSON/CSV/XML/TXT, licenciados em CC0 (domínio público). Inclui datasets que NÃO estão nas consultas web: receitas detalhadas, frota, bens patrimoniais, convênios, estagiários, plano de cargos.
+`https://muzambinho-mg.portaltp.com.br/api/dadosabertos.aspx` lista 36 endpoints em `/api/<categoria>/api-<nome>.aspx`. Cada um aparenta ser uma "API REST", mas é só uma **página com formulário ASP.NET WebForms idêntica às consultas em `/consultas/`** — com ViewState, EventValidation, mesma combo de DevExpress, mesmo botão "Imprimir Relatório" para download. O `<select>` adicional `cbxFormato` permite escolher JSON/CSV/XML/TXT, mas o mecanismo de captura é o mesmo (Playwright + `expect_download`).
 
-Roadmap: implementar coletores leves via `requests` (sem Playwright, sem ViewState) para enriquecer o portal. As URLs `/api/<categoria>/api-<nome>.aspx` existem mas a chamada com `?formato=json` retornou HTML — provavelmente requer parâmetros específicos que precisam ser descobertos olhando os exemplos no painel `/api/dadosabertos.aspx`.
+Conclusão prática: **não use `/api/` em vez de `/consultas/`**. Mesmo esforço, mesma frágil dependência de Playwright. Usar JSON nativo do `cbxFormato=JSON` pode ser uma futura otimização (parser mais simples que o saneador XML), mas o ganho é marginal.
+
+### 12. Coletor pode ser derivado (cruzamento entre datasets)
+
+Dois casos onde a fonte canônica está em outro dataset:
+
+**`coleta_diarias.py`** — não baixa do endpoint `/consultas/despesas/diarias.aspx` (que retorna fração); lê `empenhos_completo.csv` e filtra pelo elemento contábil `33901400000 - Diárias - Pessoal Civil`. O endpoint dedicado ainda é baixado em `data/_raw/` apenas como audit trail.
+
+**`coleta_comissionados.py`** — o endpoint `/consultas/pessoal/cargosconfianca.aspx` não traz salário (só cadastro). Cruzar com `servidores_completo.csv` por Matrícula para enriquecer com salário base, lotação e carga horária. Ordem do pipeline: rodar `coleta_servidores.py` primeiro.
+
+Sempre que adicionar um novo coletor, considere se existe **fonte canônica em outro dataset já coletado** — fonte cruzada costuma ser mais completa que endpoints especializados (que filtram demais).
+
+### 13. Roadmap: restos a pagar (endpoint sem export)
+
+`/consultas/despesas/restospagar.aspx` mostra 293 itens no grid (dívidas de exercícios anteriores ainda em execução), mas **não possui o menu "Imprimir Relatório"** — único endpoint validado sem export nativo. Para integrar, requer:
+
+1. Scraping HTML do grid página-a-página (Playwright navegando pelos números do paginador)
+2. Parser de `<table>` DevExpress (`dxgvDataRow_*`) — usar BeautifulSoup
+3. Verificar JS `wait_for_load_state` entre cliques de página (UpdatePanel async)
+
+Datasets relevantes pra saúde fiscal — vale a pena implementar. Não é difícil, só é trabalho extra que outros endpoints com export evitam.
+
+### 14. Insights agregados em `gera_jsons_site.py:gera_insights()`
+
+Quatro agregações pré-calculadas para os blocos visuais "Visão geral":
+
+- **Balança fiscal**: arrecadado vs empenhado vs pago (3 valores)
+- **Origem do dinheiro**: receita por categoria (top 8)
+- **Pirâmide do orçamento**: empenhos por função (top 12)
+- **Comissionados**: % do quadro, % do custo, custo total mensal
+
+São consumidas pelo template em `atualiza_index.py` (seção `#insights`) via 4 cards HTML que renderizam barras horizontais + números grandes. O JS está em `renderInsights()`.
 
 ## Pipeline
 
 ```bash
-python scraping/coleta_empenhos.py     # gera empenhos_completo.csv
-python scraping/agrega_credores.py     # depende de empenhos → credores_*.csv
-python scraping/coleta_servidores.py   # servidores_*.csv
-python scraping/coleta_diarias.py      # diarias_*.csv
-python scraping/coleta_licitacoes.py   # licitacoes + contratos
-python scraping/gera_jsons_site.py     # data/site/*.json
-python scraping/atualiza_index.py      # index.html
+# Coletores que baixam direto do PortalTP (Playwright, ~30-60s cada)
+python scraping/coleta_empenhos.py
+python scraping/coleta_receitas.py
+python scraping/coleta_transferencias.py
+python scraping/coleta_pagamentos.py
+python scraping/coleta_subvencoes.py
+python scraping/coleta_servidores.py
+python scraping/coleta_licitacoes.py     # 4-em-1: licitações + dispensas + contratos + atas
+
+# Coletores derivados (dependem de outros CSVs já gerados)
+python scraping/agrega_credores.py       # depende de empenhos
+python scraping/coleta_diarias.py        # depende de empenhos (filtra elemento 33901400000)
+python scraping/coleta_comissionados.py  # cruza com servidores (matrícula)
+
+# Pós-processamento (rápido, só stdlib)
+python scraping/gera_jsons_site.py       # CSVs → JSONs + insights + radar (12 heurísticas)
+python scraping/atualiza_index.py        # gera o index.html final (~4MB)
 ```
 
-Cada `coleta_*.py` é **independente** — pode rodar isolado. `agrega_credores.py` depende do `empenhos_completo.csv`.
+**Dependências entre coletores**:
+- `agrega_credores` ← empenhos
+- `coleta_diarias` ← empenhos (cruzamento por elemento contábil)
+- `coleta_comissionados` ← servidores (cruzamento por matrícula)
+
+Resto: independente, pode rodar em qualquer ordem.
 
 ## Estrutura dos dados
 
