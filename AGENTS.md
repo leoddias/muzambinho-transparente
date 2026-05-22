@@ -103,6 +103,20 @@ Após clicar "Aplicar", o grid é renderizado via UpdatePanel. `page.wait_for_lo
 
 Caso precise cair no fallback de CSV (não use), leia com `encoding="cp1252"` e reescreva como UTF-8-SIG. XML vem em UTF-8 (com BOM).
 
+### 10. Endpoint dedicado mente — sempre cruzar com empenhos por elemento contábil
+
+**Armadilha mais perigosa.** `/consultas/despesas/diarias.aspx` retornou 6 registros para Muzambinho/2026. Parecia plausível, mas era uma fração: filtrando `empenhos_completo.csv` pelo elemento contábil `33901400000 - Diárias - Pessoal Civil`, encontramos **57 empenhos** (R$ 30k vs R$ 438 reportados pelo endpoint dedicado).
+
+O endpoint dedicado filtra demais — provavelmente só pega registros com "Base Legal" preenchida ou abertos sob a rubrica administrativa específica de "Adiantamento de Diárias". Quem registrou a despesa direto como empenho de classificação 33901400000 não aparece lá.
+
+**Regra**: para qualquer categoria que pode estar no orçamento sob código contábil específico (diárias, passagens, obras, restos a pagar), **prefira filtrar `empenhos_completo.csv` pelo elemento**. Mantenha o download do endpoint dedicado em `data/_raw/` apenas para audit trail. Veja `scraping/coleta_diarias.py` para o padrão de implementação.
+
+### 11. API REST de dados abertos (não usado ainda)
+
+`https://muzambinho-mg.portaltp.com.br/api/dadosabertos.aspx` lista 30+ endpoints REST em JSON/CSV/XML/TXT, licenciados em CC0 (domínio público). Inclui datasets que NÃO estão nas consultas web: receitas detalhadas, frota, bens patrimoniais, convênios, estagiários, plano de cargos.
+
+Roadmap: implementar coletores leves via `requests` (sem Playwright, sem ViewState) para enriquecer o portal. As URLs `/api/<categoria>/api-<nome>.aspx` existem mas a chamada com `?formato=json` retornou HTML — provavelmente requer parâmetros específicos que precisam ser descobertos olhando os exemplos no painel `/api/dadosabertos.aspx`.
+
 ## Pipeline
 
 ```bash

@@ -8,13 +8,16 @@ Um scraper que coleta dados do [PortalTP oficial](https://muzambinho-mg.portaltp
 
 **O portal embute o dataset completo de cada categoria** — nada é truncado para "top N". Todas as listas têm busca, ordenação e filtros que percorrem o dataset inteiro, com paginação client-side de 60 itens por vez.
 
+A primeira seção é um **Radar de Gastos** com cards de anomalias detectadas automaticamente (concentração de credores, dispensas de alto valor, anulações excessivas, etc.).
+
 Cobertura atual:
 
 - **2.324 empenhos** totalizando R$ 50,5 milhões no ano (todos navegáveis)
-- **384 credores/fornecedores** agregados (todos rankeados; top: Folha de Pagamento R$ 12,3M)
+- **384 credores/fornecedores** agregados (top: Folha de Pagamento R$ 12,3M = 24% do orçamento)
 - **825 servidores** cadastrados (749 ativos) com filtros por situação, vínculo e lotação
-- **6 diárias** concedidas a servidores em deslocamentos
-- **30 contratos** vigentes (R$ 4,28M) e **5 licitações** em curso, com filtros por categoria/modalidade
+- **57 diárias** classificadas como elemento contábil 33901400000 (extraídas dos empenhos — o endpoint dedicado retornava só 6)
+- **81 processos de compra**: 5 licitações + 3 dispensas (R$ 7,79M!) + 30 contratos + 43 atas de RP
+- **8 achados no Radar de Gastos**, ordenados por severidade
 
 ## Estrutura
 

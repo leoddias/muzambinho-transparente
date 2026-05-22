@@ -38,8 +38,8 @@ Antes de escrever uma linha de código, **pergunte ao usuário tudo abaixo**. Us
 
 | # | Pergunta | Exemplo |
 |---|---|---|
-| 10 | **Paleta de cores** (a IA propõe uma baseada na curiosidade do item 3; o usuário aprova ou ajusta) | Para "Capital Nacional do Café" → coffee/terracota/creme (#3D2418, #C97B4A, #F5EDE0). Para cidade serrana → azul-serra/musgo/neve. Para litoral → marinho/coral/areia. |
-| 11 | **Brasão / logo** | Usar SVG/PNG do site oficial embutido base64, ou placeholder geométrico com inicial da cidade |
+| 10 | **Paleta de cores** (a IA propõe uma baseada na curiosidade do item 3; o usuário aprova ou ajusta). **Use sempre tema escuro warm** — fundo claro cansa para leitura prolongada de tabelas/cards. | Para "Capital Nacional do Café" → dark coffee/gold/cream warm (`--bg: #1A100A`, `--gold: #D4A968`, `--ink: #F0E6D6`). Para cidade serrana → dark forest/moss. Para litoral → dark navy/coral. |
+| 11 | **URL do brasão / logo oficial** (PNG/JPG/SVG do site da prefeitura — usar como `<img src="data:base64,...">` embutido) | Geralmente em `s3.amazonaws.com/.../uploads/.../brasao.png` ou no `<header>` do site oficial. Salvar em `assets/brasao.png` e converter para data URI no `atualiza_index.py`. Fallback: placeholder geométrico com inicial da cidade. |
 
 ### 0.5 Confirmações operacionais
 
@@ -336,7 +336,12 @@ Verifique manualmente:
 - **Export**: dentro do menu "Imprimir Relatório" — **precisa clicar no pai primeiro**
 - **XML válido?** Não — tags com chars inválidos + `&` cru + sem root
 - **Encoding XML**: UTF-8 BOM. **Encoding CSV**: cp1252.
-- **Armadilhas**: ver [AGENTS.md](AGENTS.md) seções 1–9
+- **Endpoints úteis** (todos em `/consultas/`):
+  - `despesas/empenhos.aspx`, `despesas/diarias.aspx` (cuidado: pode estar filtrado!), `despesas/passagens.aspx`, `despesas/liquidacoes.aspx`, `despesas/pagamentos.aspx`, `despesas/obras.aspx`, `despesas/subvencoes.aspx`
+  - `compras/licitacoes.aspx`, `compras/dispensas.aspx`, `compras/contratos.aspx`, `compras/atas.aspx`
+  - `pessoal/servidores.aspx`, `pessoal/cargosconfianca.aspx`
+- **API REST de dados abertos**: `/api/dadosabertos.aspx` lista 30+ endpoints em JSON/CSV/XML/TXT, licença CC0 (domínio público). Inclui datasets que não estão nas consultas web: receitas detalhadas, frota, bens patrimoniais, convênios, estagiários. **Roadmap futuro: integrar via REST puro (sem Playwright).**
+- **Armadilhas**: ver [AGENTS.md](AGENTS.md) seções 1–10
 
 ### Cidade360 / PRONIM TB
 
@@ -396,13 +401,47 @@ Verifique manualmente:
 1. **Máximo de informação, sem truncar.** O portal embute o **dataset completo** da fonte — todos os empenhos, todos os credores, todos os servidores, todas as diárias, todos os contratos. Nada de "top 20" ou "top 50". O leitor merece ver tudo que é público. Use paginação client-side (ver seção abaixo) para gerenciar performance sem esconder dados.
 2. **Filtros, busca e ordenação em todas as seções.** Toda lista deve ter: input de busca livre (busca em múltiplos campos com `.toLowerCase().includes(q)`), dropdown de ordenação (mínimo: maior valor, mais recente, A-Z), e quando o domínio permitir, chips de filtro categórico (situação, função, vínculo, modalidade, etc.) com contadores `(N)` ao lado de cada categoria.
 3. **Ordenação padrão: do maior para o menor.** A primeira coisa que o usuário vê é o que mais importa — defaults devem ser `valor_desc` ou equivalente, nunca alfabético ou data ascendente.
-4. **Dados públicos, projeto independente.** Sempre incluir aviso "não é gerido pela prefeitura" no footer e header.
-5. **Auditabilidade.** Cada número deve ser verificável na fonte oficial. Sempre linke as fontes no footer.
-6. **Autocontido.** `index.html` abre direto no browser, sem servidor, sem internet (exceto pelas Google Fonts).
-7. **LGPD.** Não desmasque CPFs que vêm mascarados pelo portal. Use chaves alternativas (Matrícula).
-8. **Honestidade sobre limitações.** Se "salário" exibido é só o base de referência, diga isso em `<div class="note">` ao lado do dado. Não engane o leitor.
-9. **Sem dependências pesadas.** stdlib + Playwright + BeautifulSoup. Sem pandas, sem React, sem build step.
-10. **Re-executável.** Todos os scripts devem ser idempotentes — rodar de novo só atualiza dados, não quebra nada.
+4. **NUNCA confiar em um único endpoint de subcategoria — sempre cruzar com empenhos por elemento de despesa.** A grande armadilha aprendida no Muzambinho: o endpoint `/consultas/despesas/diarias.aspx` retornou 6 registros; cruzando com `empenhos_completo.csv` filtrando pelo elemento contábil `33901400000 - Diárias - Pessoal Civil`, encontramos **57 empenhos**. Mesmo padrão para outras subcategorias (passagens, obras, restos a pagar). Os endpoints dedicados frequentemente filtram demais (só pegam registros com "Base Legal" preenchida ou similar) e dão uma falsa sensação de transparência. **A fonte de verdade é sempre o empenho contabilizado**. Documente a divergência em `<div class="note">` na seção, explicando ao leitor por que sua fonte é mais completa que o endpoint dedicado.
+5. **Radar de Gastos como primeira seção.** Depois da intro, antes de qualquer lista, mostre um grid de cards com anomalias/concentrações detectadas automaticamente (heurísticas, não ML). Veja seção "Radar de Gastos" abaixo.
+6. **Navegação sticky no topo.** Depois do header e stats, uma `<nav>` sticky com âncoras para cada seção. Inclua contadores `(N)` ao lado de cada link e scroll-spy (IntersectionObserver) para destacar a seção visível.
+7. **Tema escuro warm**, nunca claro puro. Fundo `#1A100A` ou similar; texto `#F0E6D6`. Tabelas/cards levemente mais claros que o fundo. Acentos em gold luminoso (`#D4A968`). "Flashbang branco" cansa para leitura prolongada de tabelas.
+8. **Dados públicos, projeto independente.** Sempre incluir aviso "não é gerido pela prefeitura" no footer e header.
+9. **Auditabilidade.** Cada número deve ser verificável na fonte oficial. Sempre linke as fontes no footer.
+10. **Autocontido.** `index.html` abre direto no browser, sem servidor, sem internet (exceto pelas Google Fonts). Brasão oficial embutido como data URI base64.
+11. **LGPD.** Não desmasque CPFs que vêm mascarados pelo portal. Use chaves alternativas (Matrícula).
+12. **Honestidade sobre limitações.** Se "salário" exibido é só o base de referência, diga isso em `<div class="note">` ao lado do dado. Não engane o leitor.
+13. **Sem dependências pesadas.** stdlib + Playwright + BeautifulSoup. Sem pandas, sem React, sem build step.
+14. **Re-executável.** Todos os scripts devem ser idempotentes — rodar de novo só atualiza dados, não quebra nada.
+
+## Padrão de Radar de Gastos ("O que os dados revelam")
+
+A **primeira seção** depois da intro (antes de qualquer lista) deve ser um grid de cards com **anomalias e concentrações** detectadas automaticamente — não acusações, mas **pistas para investigação cidadã**. Implementação em `scraping/gera_jsons_site.py:gera_radar()` que gera `data/site/radar.json` e é embutido como `RADAR` no template.
+
+### Heurísticas obrigatórias (calcule cada uma; mostre só as que tiverem achado relevante)
+
+| # | Heurística | Severidade | Threshold |
+|---|---|---|---|
+| 1 | **Concentração de credor** — top credor > X% do orçamento | alta se > 25%, media se > 10% | 10% |
+| 2 | **Dispensas de licitação acima de R$ 100k** — total e quantidade | alta sempre que > 0 | R$ 100k (Lei 14.133/21 só permite "comum" até R$ 59.906) |
+| 3 | **Anulações expressivas** — % de empenhos anulados sobre o total | alta se > 15%, media se > 8% | 8% |
+| 4 | **Credores com muitas anulações** — top credor com ≥ 5 anulações | media | 5 anulações |
+| 5 | **Concentração por função/área** — top 3 áreas de governo | info | mostrar sempre |
+| 6 | **Fornecedores em múltiplas categorias** — CNPJs em contratos + atas + dispensas | info | mostrar se ≥ 1 |
+| 7 | **Servidores em regime não-ativo** — % do quadro afastado/licenciado | baixa | 7% |
+| 8 | **Histórico genérico em empenhos altos** — termos vagos ("diversas", "outros") + valor ≥ R$ 50k | baixa | mostrar se > 0 |
+
+### Estrutura de cada achado (JSON)
+
+```python
+{{"tipo": "dispensa", "icone": "⚠️", "severidade": "alta",
+ "titulo": "1 dispensa(s) acima de R$ 100 mil",
+ "descricao": "Total R$ 7,79M contratado sem certame. Lei 14.133/21 permite dispensa comum só até R$ 59.906,02 — valores maiores devem ser inexigibilidade fundamentada.",
+ "link": "#licitacoes"}}
+```
+
+Severidade vira cor da borda esquerda do card: `alta` (vermelho), `media` (laranja), `baixa` (gold), `info` (musgo verde). Ordenar do mais grave para o menos.
+
+**Tom obrigatório**: conservador, explicativo, sem acusar irregularidade. Cada achado deve ter contexto que ajuda o leitor leigo a entender por que aquilo chamou atenção (ex: citar o limite legal, explicar o que é uma dispensa, etc.).
 
 ## Padrão de paginação client-side
 

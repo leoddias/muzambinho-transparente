@@ -64,6 +64,7 @@ def main() -> None:
     diarias = carrega("diarias")
     licitacoes = carrega("licitacoes")
     kpis = carrega("kpis")
+    radar = carrega("radar")
 
     hoje = date.today()
     data_geracao = f"{hoje.day} de {MESES_PT[hoje.month]} de {hoje.year}"
@@ -73,6 +74,9 @@ def main() -> None:
         return json.dumps(o, ensure_ascii=False, separators=(",", ":"))
 
     brasao_uri = img_data_uri(ASSETS / "brasao.png")
+
+    qtd_compras = (kpis.get("qtd_licitacoes", 0) + kpis.get("qtd_dispensas", 0)
+                   + kpis.get("qtd_contratos", 0) + kpis.get("qtd_atas", 0))
 
     html = HTML_TEMPLATE.format(
         data_geracao=data_geracao,
@@ -89,12 +93,17 @@ def main() -> None:
         kpi_contratos=fmt_brl_compacto(kpis["total_contratos"]),
         kpi_qtd_contratos=kpis["qtd_contratos"],
         kpi_qtd_licitacoes=kpis["qtd_licitacoes"],
+        kpi_qtd_dispensas=kpis.get("qtd_dispensas", 0),
+        kpi_qtd_atas=kpis.get("qtd_atas", 0),
+        kpi_qtd_compras=qtd_compras,
         json_credores=js(credores),
         json_empenhos=js(empenhos),
         json_servidores=js(servidores),
         json_diarias=js(diarias),
         json_licitacoes=js(licitacoes),
         json_kpis=js(kpis),
+        json_radar=js(radar),
+        qtd_radar=len(radar),
     )
 
     OUT.write_text(html, encoding="utf-8")
@@ -309,6 +318,48 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     table.t thead th, table.t tbody td {{ padding: 0.55rem 0.6rem; }}
   }}
 
+  /* RADAR DE GASTOS - cards de anomalia */
+  .radar-intro {{ display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.4rem; }}
+  .radar-intro h2 {{ margin: 0; }}
+  .radar-intro .badge {{
+    font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.25rem 0.6rem; border-radius: 999px;
+    background: rgba(224,122,82,0.12); color: var(--danger); border: 1px solid rgba(224,122,82,0.3);
+  }}
+  .radar-grid {{
+    display: grid; gap: 0.85rem; grid-template-columns: 1fr;
+    margin-top: 1.25rem;
+  }}
+  @media (min-width: 720px) {{ .radar-grid {{ grid-template-columns: repeat(2, 1fr); }} }}
+  @media (min-width: 1080px) {{ .radar-grid {{ grid-template-columns: repeat(3, 1fr); }} }}
+  .radar-card {{
+    background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ink-mute);
+    border-radius: 8px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.45rem;
+    text-decoration: none; color: inherit; transition: all 0.15s;
+  }}
+  .radar-card:hover {{ border-color: var(--gold); transform: translateY(-1px); }}
+  .radar-card.sev-alta   {{ border-left-color: var(--danger); }}
+  .radar-card.sev-media  {{ border-left-color: var(--clay); }}
+  .radar-card.sev-baixa  {{ border-left-color: var(--gold); }}
+  .radar-card.sev-info   {{ border-left-color: var(--moss); }}
+  .radar-card .head {{ display: flex; align-items: baseline; gap: 0.5rem; justify-content: space-between; }}
+  .radar-card .icon {{ font-size: 1.4rem; line-height: 1; }}
+  .radar-card .sev {{
+    font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--surface-2); color: var(--ink-mute);
+  }}
+  .radar-card.sev-alta .sev  {{ color: var(--danger); background: rgba(224,122,82,0.12); }}
+  .radar-card.sev-media .sev {{ color: var(--clay); background: rgba(229,149,104,0.12); }}
+  .radar-card.sev-info .sev  {{ color: var(--moss); background: rgba(148,181,118,0.12); }}
+  .radar-card .titulo {{
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); line-height: 1.25;
+  }}
+  .radar-card .desc {{ font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; }}
+  .radar-card .cta {{
+    margin-top: auto; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--gold); padding-top: 0.4rem;
+  }}
+
   /* CARDS */
   .cards {{ display: grid; gap: 0.85rem; grid-template-columns: 1fr; margin-top: 1rem; }}
   @media (min-width: 720px) {{ .cards {{ grid-template-columns: repeat(2, 1fr); }} }}
@@ -404,11 +455,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
 <nav class="site-nav" aria-label="Navegação entre seções">
   <div class="wrap">
+    <a href="#radar">Radar <span class="n">{qtd_radar}</span></a>
     <a href="#credores">Credores <span class="n">{kpi_qtd_credores}</span></a>
     <a href="#empenhos">Empenhos <span class="n">{kpi_qtd_empenhos}</span></a>
     <a href="#servidores">Servidores <span class="n">{kpi_qtd_servidores_total}</span></a>
     <a href="#diarias">Diárias <span class="n">{kpi_qtd_diarias}</span></a>
-    <a href="#licitacoes">Licitações <span class="n">{kpi_qtd_contratos}</span></a>
+    <a href="#licitacoes">Compras <span class="n">{kpi_qtd_compras}</span></a>
   </div>
 </nav>
 
@@ -418,6 +470,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <span class="label">Como ler este portal</span>
     <p>Para onde vai o dinheiro público de Muzambinho? Este portal organiza, em uma única página, <strong>todos os dados</strong> que a Prefeitura já publica de forma fragmentada no PortalTP oficial — cada empenho, cada credor, cada servidor, cada diária, cada contrato do exercício de 2026. Nada está agregado, resumido ou filtrado; use as buscas e ordenações para explorar.</p>
   </div>
+</section>
+
+<section id="radar">
+  <div class="radar-intro">
+    <h2>Radar de gastos</h2>
+    <span class="badge">O que os dados revelam</span>
+  </div>
+  <p class="lead">Concentrações, contratações sem licitação, anulações expressivas e outros pontos que <strong>chamaram atenção nos dados oficiais</strong>. Não são acusações de irregularidade — são pistas para investigação cidadã. Cada cartão é clicável e leva à seção com os dados detalhados.</p>
+  <div class="radar-grid" id="radarGrid"></div>
 </section>
 
 <section id="credores">
@@ -501,10 +562,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 </section>
 
 <section id="diarias">
-  <h2>Diárias de viagem</h2>
-  <p class="lead">Todas as <span id="diaTotal"></span> diárias concedidas a servidores em deslocamentos. Valores negativos são <em>devoluções</em> de adiantamentos não usados — não são novas despesas.</p>
+  <h2>Diárias e adiantamentos a servidores</h2>
+  <p class="lead">Todos os <span id="diaTotal"></span> empenhos classificados como <em>diárias para pessoal civil</em> no orçamento (código 33901400000). Valores negativos são devoluções de adiantamentos não utilizados.</p>
+  <div class="note">
+    <strong>Por que esta fonte?</strong> O endpoint dedicado de diárias do PortalTP retorna apenas registros formalmente abertos sob a rubrica "Adiantamento de Diárias" (no caso de Muzambinho/2026, apenas 6). Para mostrar <strong>todas</strong> as diárias do exercício, cruzamos com o registro contábil oficial — todo empenho com elemento de despesa <code>33901400000 - Diárias - Pessoal Civil</code>.
+  </div>
   <div class="toolbar">
-    <input id="diaSearch" type="search" placeholder="Buscar por beneficiário, motivo..." aria-label="Buscar diária">
+    <input id="diaSearch" type="search" placeholder="Buscar por beneficiário, motivo, função..." aria-label="Buscar diária">
     <select id="diaSort" aria-label="Ordenar diárias">
       <option value="valor_desc">Maior valor (absoluto)</option>
       <option value="data_desc">Mais recente</option>
@@ -514,14 +578,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <span class="count" id="diaCount"></span>
   </div>
   <div class="cards" id="diaCards"></div>
+  <button id="diaMore" class="more-btn">Mostrar mais</button>
 </section>
 
 <section id="licitacoes">
-  <h2>Licitações &amp; contratos</h2>
-  <p class="lead">Processos licitatórios abertos no ano (<span id="licTotalL"></span>) e contratos vigentes assinados pela Prefeitura (<span id="licTotalC"></span>).</p>
+  <h2>Compras e contratações</h2>
+  <p class="lead">Todos os processos de contratação pública do ano — <span id="licTotalL"></span> licitações, <span id="licTotalD"></span> dispensas, <span id="licTotalC"></span> contratos vigentes e <span id="licTotalA"></span> atas de registro de preço.</p>
+  <div class="note">
+    <strong>Por que 4 categorias?</strong> No PortalTP, processos de compra ficam divididos em endpoints separados. <em>Licitações</em> são certames formais (pregão, concorrência). <em>Dispensas</em> são contratações sem licitação por baixo valor ou emergência (Lei 14.133/21). <em>Contratos</em> são acordos vigentes (podem vir de licitação ou dispensa). <em>Atas de registro de preço</em> são compromissos de fornecimento futuro com preços travados. Cada uma é um ângulo diferente das despesas com terceiros.
+  </div>
   <div class="tabs">
-    <button id="tabLic" class="active" onclick="switchLicTab('lic')">Licitações</button>
-    <button id="tabCon" onclick="switchLicTab('con')">Contratos</button>
+    <button id="tabLic" class="active" onclick="switchLicTab('lic')">Licitações <span class="n" id="tabLicN"></span></button>
+    <button id="tabDis" onclick="switchLicTab('dis')">Dispensas <span class="n" id="tabDisN"></span></button>
+    <button id="tabCon" onclick="switchLicTab('con')">Contratos <span class="n" id="tabConN"></span></button>
+    <button id="tabAta" onclick="switchLicTab('ata')">Atas RP <span class="n" id="tabAtaN"></span></button>
   </div>
   <div class="chips-group" id="licCatRow" style="display:none;">
     <div class="row-label">Categoria</div>
@@ -577,6 +647,7 @@ const SERVIDORES = {json_servidores};
 const DIARIAS    = {json_diarias};
 const LICITACOES = {json_licitacoes};
 const KPIS       = {json_kpis};
+const RADAR      = {json_radar};
 
 const PAGE_SIZE = 60;
 
@@ -777,6 +848,20 @@ function setSrvSituacao(s) {{ srvSituacao = s; renderSrvFiltros(); renderServido
 function setSrvVinculo(v) {{ srvVinculo = v; renderSrvFiltros(); renderServidores(); }}
 
 // =========== DIÁRIAS ===========
+function renderDiaria(d) {{
+  return `<div class="card">
+    <div class="top">
+      <span class="date">${{esc(d.data)}}${{d.empenho ? '  ·  emp. ' + esc(d.empenho) : ''}}</span>
+      <span class="val ${{d.valor_num < 0 ? 'neg' : ''}}">${{esc(d.valor)}}</span>
+    </div>
+    <div class="fav">${{esc(d.beneficiario)}}</div>
+    <div class="meta">
+      ${{d.funcao ? `<span>${{esc(d.funcao)}}</span>` : ''}}
+      ${{d.cpf ? `<span class="mono">${{esc(d.cpf)}}</span>` : ''}}
+    </div>
+    <div class="desc">${{esc(d.motivo)}}</div>
+  </div>`;
+}}
 function renderDiarias() {{
   const q = $('#diaSearch').value.trim().toLowerCase();
   const sort = $('#diaSort').value;
@@ -786,45 +871,142 @@ function renderDiarias() {{
     valor_desc:   (a, b) => Math.abs(b.valor_num) - Math.abs(a.valor_num),
     beneficiario: (a, b) => a.beneficiario.localeCompare(b.beneficiario, 'pt-BR'),
   }};
-  let rows = DIARIAS.slice();
-  if (q) rows = rows.filter(d => (d.beneficiario + ' ' + d.motivo + ' ' + d.cargo).toLowerCase().includes(q));
-  rows.sort(sorters[sort]);
-  $('#diaCount').textContent = `${{rows.length}} de ${{DIARIAS.length}}`;
-  $('#diaCards').innerHTML = rows.map(d => `
-    <div class="card">
-      <div class="top">
-        <span class="date">${{esc(d.data)}}</span>
-        <span class="val ${{d.valor_num < 0 ? 'neg' : ''}}">${{esc(d.valor)}}</span>
-      </div>
-      <div class="fav">${{esc(d.beneficiario)}}</div>
-      <div class="meta">
-        ${{d.cargo ? `<span>${{esc(d.cargo)}}</span>` : ''}}
-        ${{d.matricula ? `<span>mat. ${{esc(d.matricula)}}</span>` : ''}}
-        ${{d.base_legal ? `<span>${{esc(d.base_legal)}}</span>` : ''}}
-      </div>
-      <div class="desc">${{esc(d.motivo)}}</div>
-    </div>`).join('') || '<div class="empty">Nenhuma diária registrada.</div>';
+  paginatedRender({{
+    key: 'dia', dataset: DIARIAS,
+    filterFn: d => !q || (d.beneficiario + ' ' + d.motivo + ' ' + (d.funcao || '')).toLowerCase().includes(q),
+    sortFn: sorters[sort],
+    renderItem: renderDiaria,
+    container: '#diaCards', moreBtn: '#diaMore', countEl: '#diaCount',
+  }});
 }}
 
-// =========== LICITAÇÕES / CONTRATOS ===========
+// =========== COMPRAS (Licitações / Dispensas / Contratos / Atas) ===========
 let licTab = 'lic';
 let licCategoria = null;
+
+const LIC_RENDERERS = {{
+  lic: {{
+    dataset: () => LICITACOES.licitacoes,
+    hasCat: false,
+    search: l => (l.objeto + ' ' + l.numero + ' ' + l.modalidade + ' ' + l.processo).toLowerCase(),
+    sorters: {{
+      data_desc:  (a, b) => parseDate(b.data) - parseDate(a.data),
+      data_asc:   (a, b) => parseDate(a.data) - parseDate(b.data),
+      valor_desc: (a, b) => (b.valor_estimado_num || 0) - (a.valor_estimado_num || 0),
+      contratado: (a, b) => (a.objeto || '').localeCompare(b.objeto || '', 'pt-BR'),
+    }},
+    render: l => `<div class="card">
+      <div class="top">
+        <span class="date">${{esc(l.data)}}  ·  nº ${{esc(l.numero)}}</span>
+        <span class="val">${{esc(l.valor_final && l.valor_final_num > 0 ? l.valor_final : l.valor_estimado)}}</span>
+      </div>
+      <div class="fav">${{esc(l.modalidade)}}</div>
+      <div class="desc">${{esc(l.objeto)}}</div>
+      <div class="meta">
+        <span>Proc. ${{esc(l.processo)}}</span>
+        <span>${{esc(l.situacao)}}</span>
+      </div>
+    </div>`,
+  }},
+  dis: {{
+    dataset: () => LICITACOES.dispensas,
+    hasCat: false,
+    search: d => (d.objeto + ' ' + d.numero + ' ' + d.modalidade + ' ' + d.processo).toLowerCase(),
+    sorters: {{
+      data_desc:  (a, b) => parseDate(b.data) - parseDate(a.data),
+      data_asc:   (a, b) => parseDate(a.data) - parseDate(b.data),
+      valor_desc: (a, b) => (b.valor_final_num || b.valor_estimado_num || 0) - (a.valor_final_num || a.valor_estimado_num || 0),
+      contratado: (a, b) => (a.objeto || '').localeCompare(b.objeto || '', 'pt-BR'),
+    }},
+    render: d => `<div class="card">
+      <div class="top">
+        <span class="date">${{esc(d.data)}}  ·  nº ${{esc(d.numero)}}${{d.ano ? '/' + esc(d.ano) : ''}}</span>
+        <span class="val">${{esc(d.valor_final && d.valor_final_num > 0 ? d.valor_final : d.valor_estimado)}}</span>
+      </div>
+      <div class="fav">${{esc(d.modalidade)}}</div>
+      <div class="desc">${{esc(d.objeto)}}</div>
+      <div class="meta">
+        <span>Proc. ${{esc(d.processo)}}</span>
+        ${{d.base_legal ? `<span>${{esc(d.base_legal).slice(0, 60)}}</span>` : ''}}
+        <span>${{esc(d.situacao)}}</span>
+      </div>
+    </div>`,
+  }},
+  con: {{
+    dataset: () => LICITACOES.contratos,
+    hasCat: true,
+    search: c => (c.objeto + ' ' + c.contratado + ' ' + c.contrato + ' ' + c.cnpj).toLowerCase(),
+    catKey: c => c.categoria,
+    sorters: {{
+      data_desc:  (a, b) => parseDate(b.assinatura) - parseDate(a.assinatura),
+      data_asc:   (a, b) => parseDate(a.assinatura) - parseDate(b.assinatura),
+      valor_desc: (a, b) => b.valor_num - a.valor_num,
+      contratado: (a, b) => a.contratado.localeCompare(b.contratado, 'pt-BR'),
+    }},
+    render: c => `<div class="card">
+      <div class="top">
+        <span class="date">assinado ${{esc(c.assinatura)}}  ·  nº ${{esc(c.contrato)}}</span>
+        <span class="val">${{esc(c.valor)}}</span>
+      </div>
+      <div class="fav">${{esc(c.contratado)}}</div>
+      <div class="desc">${{esc(c.objeto)}}</div>
+      <div class="meta">
+        ${{c.cnpj ? `<span class="mono">${{esc(c.cnpj)}}</span>` : ''}}
+        ${{c.categoria ? `<span>${{esc(c.categoria)}}</span>` : ''}}
+        <span>${{esc(c.situacao)}}</span>
+      </div>
+    </div>`,
+  }},
+  ata: {{
+    dataset: () => LICITACOES.atas,
+    hasCat: true,
+    search: a => (a.objeto + ' ' + a.contratado + ' ' + a.ata + ' ' + a.cnpj).toLowerCase(),
+    catKey: a => a.categoria,
+    sorters: {{
+      data_desc:  (a, b) => parseDate(b.assinatura) - parseDate(a.assinatura),
+      data_asc:   (a, b) => parseDate(a.assinatura) - parseDate(b.assinatura),
+      valor_desc: (a, b) => b.valor_num - a.valor_num,
+      contratado: (a, b) => a.contratado.localeCompare(b.contratado, 'pt-BR'),
+    }},
+    render: a => `<div class="card">
+      <div class="top">
+        <span class="date">assinada ${{esc(a.assinatura)}}  ·  ata ${{esc(a.ata)}}${{a.ano ? '/' + esc(a.ano) : ''}}</span>
+        <span class="val">${{esc(a.valor)}}</span>
+      </div>
+      <div class="fav">${{esc(a.contratado)}}</div>
+      <div class="desc">${{esc(a.objeto)}}</div>
+      <div class="meta">
+        ${{a.cnpj ? `<span class="mono">${{esc(a.cnpj)}}</span>` : ''}}
+        ${{a.categoria ? `<span>${{esc(a.categoria)}}</span>` : ''}}
+        <span>${{esc(a.situacao)}}</span>
+      </div>
+    </div>`,
+  }},
+}};
+
 function switchLicTab(t) {{
   licTab = t; licCategoria = null;
-  $('#tabLic').classList.toggle('active', t === 'lic');
-  $('#tabCon').classList.toggle('active', t === 'con');
-  $('#licCatRow').style.display = t === 'con' ? 'flex' : 'none';
+  ['lic', 'dis', 'con', 'ata'].forEach(k => {{
+    $('#tab' + k.charAt(0).toUpperCase() + k.slice(1)).classList.toggle('active', t === k);
+  }});
+  const cfg = LIC_RENDERERS[t];
+  $('#licCatRow').style.display = cfg.hasCat ? 'flex' : 'none';
   renderLicChips();
   renderLicitacoes();
 }}
 
 function renderLicChips() {{
-  if (licTab !== 'con') return;
+  const cfg = LIC_RENDERERS[licTab];
+  if (!cfg.hasCat) return;
+  const data = cfg.dataset();
   const counts = {{}};
-  LICITACOES.contratos.forEach(c => {{ if (c.categoria) counts[c.categoria] = (counts[c.categoria] || 0) + 1; }});
+  data.forEach(item => {{
+    const cat = cfg.catKey(item);
+    if (cat) counts[cat] = (counts[cat] || 0) + 1;
+  }});
   const cats = Object.keys(counts).sort();
   $('#licCatChips').innerHTML =
-    `<button class="chip ${{!licCategoria ? 'active' : ''}}" onclick="setLicCat(null)">Todas (${{LICITACOES.contratos.length}})</button>` +
+    `<button class="chip ${{!licCategoria ? 'active' : ''}}" onclick="setLicCat(null)">Todas (${{data.length}})</button>` +
     cats.map(c => `<button class="chip ${{licCategoria === c ? 'active' : ''}}" onclick="setLicCat('${{c.replace(/'/g, "&#39;")}}')">${{esc(c)}} (${{counts[c]}})</button>`).join('');
 }}
 function setLicCat(c) {{ licCategoria = c; renderLicChips(); renderLicitacoes(); }}
@@ -832,64 +1014,18 @@ function setLicCat(c) {{ licCategoria = c; renderLicChips(); renderLicitacoes();
 function renderLicitacoes() {{
   const q = $('#licSearch').value.trim().toLowerCase();
   const sort = $('#licSort').value;
-  if (licTab === 'lic') {{
-    const sorters = {{
-      data_desc:   (a, b) => parseDate(b.data) - parseDate(a.data),
-      data_asc:    (a, b) => parseDate(a.data) - parseDate(b.data),
-      valor_desc:  (a, b) => (b.valor_estimado_num || 0) - (a.valor_estimado_num || 0),
-      contratado:  (a, b) => (a.objeto || '').localeCompare(b.objeto || '', 'pt-BR'),
-    }};
-    paginatedRender({{
-      key: 'lic', dataset: LICITACOES.licitacoes,
-      filterFn: l => !q || (l.objeto + ' ' + l.numero + ' ' + l.modalidade + ' ' + l.processo).toLowerCase().includes(q),
-      sortFn: sorters[sort],
-      renderItem: l => `
-        <div class="card">
-          <div class="top">
-            <span class="date">${{esc(l.data)}}  ·  nº ${{esc(l.numero)}}</span>
-            <span class="val">${{esc(l.valor_final && l.valor_final_num > 0 ? l.valor_final : l.valor_estimado)}}</span>
-          </div>
-          <div class="fav">${{esc(l.modalidade)}}</div>
-          <div class="desc">${{esc(l.objeto)}}</div>
-          <div class="meta">
-            <span>Proc. ${{esc(l.processo)}}</span>
-            <span>${{esc(l.situacao)}}</span>
-          </div>
-        </div>`,
-      container: '#licCards', moreBtn: '#licMore', countEl: '#licCount',
-    }});
-  }} else {{
-    const sorters = {{
-      data_desc:   (a, b) => parseDate(b.assinatura) - parseDate(a.assinatura),
-      data_asc:    (a, b) => parseDate(a.assinatura) - parseDate(b.assinatura),
-      valor_desc:  (a, b) => b.valor_num - a.valor_num,
-      contratado:  (a, b) => a.contratado.localeCompare(b.contratado, 'pt-BR'),
-    }};
-    paginatedRender({{
-      key: 'lic', dataset: LICITACOES.contratos,
-      filterFn: c => {{
-        if (licCategoria && c.categoria !== licCategoria) return false;
-        if (q && !(c.objeto + ' ' + c.contratado + ' ' + c.contrato + ' ' + c.cnpj).toLowerCase().includes(q)) return false;
-        return true;
-      }},
-      sortFn: sorters[sort],
-      renderItem: c => `
-        <div class="card">
-          <div class="top">
-            <span class="date">assinado ${{esc(c.assinatura)}}  ·  nº ${{esc(c.contrato)}}</span>
-            <span class="val">${{esc(c.valor)}}</span>
-          </div>
-          <div class="fav">${{esc(c.contratado)}}</div>
-          <div class="desc">${{esc(c.objeto)}}</div>
-          <div class="meta">
-            ${{c.cnpj ? `<span class="mono">${{esc(c.cnpj)}}</span>` : ''}}
-            ${{c.categoria ? `<span>${{esc(c.categoria)}}</span>` : ''}}
-            <span>${{esc(c.situacao)}}</span>
-          </div>
-        </div>`,
-      container: '#licCards', moreBtn: '#licMore', countEl: '#licCount',
-    }});
-  }}
+  const cfg = LIC_RENDERERS[licTab];
+  paginatedRender({{
+    key: 'lic', dataset: cfg.dataset(),
+    filterFn: item => {{
+      if (cfg.hasCat && licCategoria && cfg.catKey(item) !== licCategoria) return false;
+      if (q && !cfg.search(item).includes(q)) return false;
+      return true;
+    }},
+    sortFn: cfg.sorters[sort],
+    renderItem: cfg.render,
+    container: '#licCards', moreBtn: '#licMore', countEl: '#licCount',
+  }});
 }}
 
 // =========== EVENTS ===========
@@ -946,7 +1082,24 @@ $('#diaTotal').textContent  = DIARIAS.length.toLocaleString('pt-BR');
 $('#licTotalL').textContent = LICITACOES.licitacoes.length;
 $('#licTotalC').textContent = LICITACOES.contratos.length;
 
+// =========== RADAR DE GASTOS ===========
+function renderRadar() {{
+  const ordem = {{ alta: 0, media: 1, baixa: 2, info: 3 }};
+  const sorted = RADAR.slice().sort((a, b) => (ordem[a.severidade] ?? 4) - (ordem[b.severidade] ?? 4));
+  $('#radarGrid').innerHTML = sorted.map(a => `
+    <a class="radar-card sev-${{esc(a.severidade)}}" href="${{esc(a.link)}}">
+      <div class="head">
+        <span class="icon" aria-hidden="true">${{esc(a.icone)}}</span>
+        <span class="sev">${{esc(a.severidade)}}</span>
+      </div>
+      <div class="titulo">${{esc(a.titulo)}}</div>
+      <div class="desc">${{esc(a.descricao)}}</div>
+      <div class="cta">Ver dados →</div>
+    </a>`).join('') || '<div class="empty">Nenhuma anomalia detectada.</div>';
+}}
+
 // Inicialização
+renderRadar();
 renderCredores();
 renderEmpChips();
 renderEmpenhos();
