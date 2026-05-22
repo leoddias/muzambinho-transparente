@@ -458,6 +458,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   }}
   .card .tag.warn {{ background: rgba(224,122,82,0.15); color: var(--danger); border-color: rgba(224,122,82,0.3); }}
   .card .tag.ok   {{ background: rgba(148,181,118,0.15); color: var(--moss); border-color: rgba(148,181,118,0.3); }}
+  /* Tags de vínculo (servidores) - destaque para distinguir concursado de indicação */
+  .card .tag.v-efetivo      {{ background: rgba(148,181,118,0.18); color: var(--moss); border-color: rgba(148,181,118,0.45); }}
+  .card .tag.v-comissionado {{ background: rgba(229,149,104,0.20); color: var(--clay); border-color: rgba(229,149,104,0.55); font-weight: 700; }}
+  .card .tag.v-eleito       {{ background: rgba(212,169,104,0.20); color: var(--gold); border-color: rgba(212,169,104,0.55); font-weight: 700; }}
+  .card .tag.v-temporario   {{ background: rgba(184,137,58,0.12); color: var(--gold); border-color: rgba(184,137,58,0.35); }}
+  .card .tag.v-aposentado   {{ background: var(--surface-2); color: var(--ink-mute); border-color: var(--line); }}
+  .card .tags-row {{ display: flex; gap: 0.35rem; flex-wrap: wrap; }}
 
   .note {{
     background: var(--surface); border-left: 3px solid var(--gold);
@@ -864,6 +871,7 @@ const SUBVENCOES = {json_subvencoes};
 const INSIGHTS   = {json_insights};
 
 const PAGE_SIZE = 60;
+const PAGE_SIZE_COMPACT = 10;  // listas longas em valor mas mais "scanneaveis": credores, empenhos, pagamentos
 
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -874,18 +882,19 @@ const parseDate = (s) => {{ if (!s) return 0; const [d,m,y] = s.split('/'); retu
 // =========== Estado por seção (datasetFiltrado + cursor de paginação) ===========
 const state = {{}};
 
-function paginatedRender({{key, dataset, filterFn, sortFn, renderItem, renderEmpty, container, moreBtn, countEl}}) {{
+function paginatedRender({{key, dataset, filterFn, sortFn, renderItem, renderEmpty, container, moreBtn, countEl, pageSize}}) {{
   // Aplica filtro + sort, guarda no state e renderiza primeiro batch
   const filtered = (dataset || []).filter(filterFn || (() => true));
   if (sortFn) filtered.sort(sortFn);
-  state[key] = {{ filtered, cursor: 0 }};
+  state[key] = {{ filtered, cursor: 0, pageSize: pageSize || PAGE_SIZE }};
   $(container).innerHTML = '';
   appendBatch(key, renderItem, container, moreBtn, countEl, renderEmpty);
 }}
 
 function appendBatch(key, renderItem, container, moreBtn, countEl, renderEmpty) {{
   const s = state[key];
-  const slice = s.filtered.slice(s.cursor, s.cursor + PAGE_SIZE);
+  const size = s.pageSize || PAGE_SIZE;
+  const slice = s.filtered.slice(s.cursor, s.cursor + size);
   if (s.cursor === 0 && slice.length === 0) {{
     $(container).innerHTML = renderEmpty ? renderEmpty() : '<div class="empty">Nada encontrado.</div>';
   }} else {{
@@ -900,7 +909,7 @@ function appendBatch(key, renderItem, container, moreBtn, countEl, renderEmpty) 
     if (rest > 0) {{
       btn.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = `Mostrar mais ${{Math.min(PAGE_SIZE, rest).toLocaleString('pt-BR')}} (de ${{rest.toLocaleString('pt-BR')}} restantes)`;
+      btn.textContent = `Mostrar mais ${{Math.min(size, rest).toLocaleString('pt-BR')}} (de ${{rest.toLocaleString('pt-BR')}} restantes)`;
     }} else {{
       btn.style.display = 'none';
     }}
@@ -919,7 +928,7 @@ function renderCredores() {{
     nome:     (a, b) => a.favorecido.localeCompare(b.favorecido, 'pt-BR'),
   }};
   paginatedRender({{
-    key: 'cred', dataset: CREDORES,
+    key: 'cred', dataset: CREDORES, pageSize: PAGE_SIZE_COMPACT,
     filterFn: c => !q || (c.favorecido + ' ' + c.cnpj).toLowerCase().includes(q),
     sortFn: sorters[sort],
     renderItem: (c, i) => {{
@@ -952,7 +961,7 @@ function renderEmpenhos() {{
     favorecido:  (a, b) => a.favorecido.localeCompare(b.favorecido, 'pt-BR'),
   }};
   paginatedRender({{
-    key: 'emp', dataset: EMPENHOS,
+    key: 'emp', dataset: EMPENHOS, pageSize: PAGE_SIZE_COMPACT,
     filterFn: e => {{
       if (hideAnul && e.valor_num < 0) return false;
       if (empFiltroFuncao && e.funcao !== empFiltroFuncao) return false;
@@ -992,6 +1001,17 @@ function setEmpFuncao(f) {{ empFiltroFuncao = f; renderEmpChips(); renderEmpenho
 // =========== SERVIDORES ===========
 let srvSituacao = null;
 let srvVinculo = null;
+
+function vinculoClass(v) {{
+  const x = (v || '').toLowerCase();
+  if (x.includes('efetivo')) return 'v-efetivo';
+  if (x.includes('comissionado') || x.includes('confiança') || x.includes('confianca')) return 'v-comissionado';
+  if (x.includes('eleito') || x.includes('agente politico') || x.includes('agente político')) return 'v-eleito';
+  if (x.includes('temporário') || x.includes('temporario') || x.includes('contratado')) return 'v-temporario';
+  if (x.includes('aposentado') || x.includes('inativo')) return 'v-aposentado';
+  return '';
+}}
+
 function renderServidores() {{
   const q = $('#srvSearch').value.trim().toLowerCase();
   const lot = $('#srvLotacao').value;
@@ -1017,6 +1037,7 @@ function renderServidores() {{
     renderItem: s => {{
       const pct = Math.max(0.5, (s.salario_base_num / (KPIS.max_salario || 1)) * 100);
       const sitClass = s.situacao === 'Ativo' ? 'ok' : (s.salario_base_num === 0 ? 'warn' : '');
+      const vCls = vinculoClass(s.vinculo);
       return `<div class="card">
         <div class="top">
           <span class="date">mat. ${{esc(s.matricula)}}</span>
@@ -1026,12 +1047,14 @@ function renderServidores() {{
         <div class="fav">${{esc(s.nome)}}</div>
         <div class="meta">
           <span>${{esc(s.cargo)}}</span>
-          ${{s.vinculo ? `<span>${{esc(s.vinculo)}}</span>` : ''}}
           ${{s.carga_horaria ? `<span>${{esc(s.carga_horaria)}}h/mês</span>` : ''}}
           ${{s.admissao ? `<span>desde ${{esc(s.admissao)}}</span>` : ''}}
         </div>
         <div class="desc">${{esc(s.lotacao)}}</div>
-        <span class="tag ${{sitClass}}">${{esc(s.situacao)}}</span>
+        <div class="tags-row">
+          ${{s.vinculo ? `<span class="tag ${{vCls}}">${{esc(s.vinculo)}}</span>` : ''}}
+          <span class="tag ${{sitClass}}">${{esc(s.situacao)}}</span>
+        </div>
       </div>`;
     }},
     container: '#srvCards', moreBtn: '#srvMore', countEl: '#srvCount',
@@ -1267,7 +1290,8 @@ $('#srvMore').addEventListener('click', () => appendBatch('srv',
   s => {{
     const pct = Math.max(0.5, (s.salario_base_num / (KPIS.max_salario || 1)) * 100);
     const sitClass = s.situacao === 'Ativo' ? 'ok' : (s.salario_base_num === 0 ? 'warn' : '');
-    return `<div class="card"><div class="top"><span class="date">mat. ${{esc(s.matricula)}}</span><span class="val">${{esc(s.salario_base)}}</span></div><div class="bar" style="margin-top:-0.2rem"><i style="width:${{pct.toFixed(1)}}%"></i></div><div class="fav">${{esc(s.nome)}}</div><div class="meta"><span>${{esc(s.cargo)}}</span>${{s.vinculo ? `<span>${{esc(s.vinculo)}}</span>` : ''}}${{s.carga_horaria ? `<span>${{esc(s.carga_horaria)}}h/mês</span>` : ''}}${{s.admissao ? `<span>desde ${{esc(s.admissao)}}</span>` : ''}}</div><div class="desc">${{esc(s.lotacao)}}</div><span class="tag ${{sitClass}}">${{esc(s.situacao)}}</span></div>`;
+    const vCls = vinculoClass(s.vinculo);
+    return `<div class="card"><div class="top"><span class="date">mat. ${{esc(s.matricula)}}</span><span class="val">${{esc(s.salario_base)}}</span></div><div class="bar" style="margin-top:-0.2rem"><i style="width:${{pct.toFixed(1)}}%"></i></div><div class="fav">${{esc(s.nome)}}</div><div class="meta"><span>${{esc(s.cargo)}}</span>${{s.carga_horaria ? `<span>${{esc(s.carga_horaria)}}h/mês</span>` : ''}}${{s.admissao ? `<span>desde ${{esc(s.admissao)}}</span>` : ''}}</div><div class="desc">${{esc(s.lotacao)}}</div><div class="tags-row">${{s.vinculo ? `<span class="tag ${{vCls}}">${{esc(s.vinculo)}}</span>` : ''}}<span class="tag ${{sitClass}}">${{esc(s.situacao)}}</span></div></div>`;
   }},
   '#srvCards', '#srvMore', '#srvCount'));
 
@@ -1372,7 +1396,7 @@ function renderPagamentos() {{
     favorecido:  (a, b) => a.favorecido.localeCompare(b.favorecido, 'pt-BR'),
   }};
   paginatedRender({{
-    key: 'pag', dataset: PAGAMENTOS,
+    key: 'pag', dataset: PAGAMENTOS, pageSize: PAGE_SIZE_COMPACT,
     filterFn: p => !q || (p.favorecido + ' ' + p.pagamento + ' ' + p.empenho + ' ' + p.historico).toLowerCase().includes(q),
     sortFn: sorters[sort],
     renderItem: p => `<div class="card">
